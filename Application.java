@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Application 
 {
-    private static List<Application> applications = new ArrayList<>();
     private String applicant;
     private String nric;
     private int age;
@@ -20,26 +19,6 @@ public class Application
         this.flatType = flatType;
         this.projectDetails = projectDetails;
         this.status = "Pending";
-    }
-
-    public static void submit(Application app) 
-	{
-        applications.add(app);
-        System.out.println("Application submitted.");
-    }
-
-    public static Application getByNric(String nric) 
-	{
-        for (Application a : applications)
-		{
-            if (a.nric.equals(nric)) return a;
-        }
-        return null;
-    }
-
-    public static List<Application> getAllApplications() 
-	{
-        return applications;
     }
 
     public void updateStatus(String newStatus) 
