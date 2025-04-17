@@ -29,7 +29,7 @@ public class ReceiptGenerator implements ReceiptInterface {
     @Override
     public void generateReceipt(String applicantId, String projectId, String flatType) 
     {
-        Application app = Application.getByNric(applicantId);
+        Application app = DataStore.getApplicationByNric(applicantId);
         if (app != null && app.getProjectDetails().equalsIgnoreCase(projectId) && app.getFlatType().equalsIgnoreCase(flatType)) 
         {
             LocalDateTime now = LocalDateTime.now();

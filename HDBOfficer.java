@@ -139,7 +139,7 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     @Override
     public String getApplicationStatus(String applicantId) 
     {
-        Application app = Application.getByNric(applicantId);
+        Application app = DataStore.getApplicationByNric(applicantId);
         return app != null ? app.getStatus() : "Not found";
     }
 
@@ -201,7 +201,7 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     
     @Override
     public boolean withdrawApplication(String applicantId, String projectId) {
-        Application app = Application.getByNric(applicantId);
+        Application app = DataStore.getApplicationByNric(applicantId);
         if (app != null && app.getProjectDetails().equalsIgnoreCase(projectId)) {
             app.withdraw();
             return true;

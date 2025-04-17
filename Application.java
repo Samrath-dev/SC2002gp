@@ -3,7 +3,6 @@ import java.util.*;
 
 public class Application 
 {
-    private static List<Application> applications = new ArrayList<>();
     private String applicant;
     private String nric;
     private int age;
@@ -11,8 +10,9 @@ public class Application
     private String flatType;
     private String projectDetails;
     private String status;  // e.g., Pending, Booked, Successful, Withdrawn
+
     public Application(String applicant, String nric, int age, String maritalStatus,String flatType, String projectDetails)             
-	{
+    {
         this.applicant = applicant;
         this.nric = nric;
         this.age = age;
@@ -23,33 +23,33 @@ public class Application
     }
 
     public static void submit(Application app) 
-	{
-        applications.add(app);
+    {
+        DataStore.submitApplication(app); // changed to use datastore
         System.out.println("Application submitted.");
     }
 
     public static Application getByNric(String nric) 
-	{
-        for (Application a : applications)
-		{
+    {
+        for (Application a : DataStore.getAllApplications()) // changed to use datastore
+        {
             if (a.nric.equals(nric)) return a;
         }
         return null;
     }
 
     public static List<Application> getAllApplications() 
-	{
-        return applications;
+    {
+        return DataStore.getAllApplications(); // chanegd to use datastore
     }
 
     public void updateStatus(String newStatus) 
-	{
+    {
         this.status = newStatus;
         System.out.println("Status updated to: " + newStatus);
     }
 
     public void withdraw() {
-        this.status="Withdrawn";
+        this.status = "Withdrawn";
         System.out.println("Application withdrawn successfully.");
     }
 
@@ -64,31 +64,31 @@ public class Application
     // Some more getters I added for recipt gen class
 
     public String getName()
-	 {
-		 return applicant;
-	 }
+    {
+        return applicant;
+    }
     public String getNric()
-	{
-		 return nric; 
-	}
+    {
+        return nric; 
+    }
     public int getAge()
-	{
-		 return age; 
-	}
+    {
+        return age; 
+    }
     public String getMaritalStatus()
     { 
-		return maritalStatus; 
-	}
+        return maritalStatus; 
+    }
     public String getFlatType() 
-	{ 
-		return flatType; 
-	}
+    { 
+        return flatType; 
+    }
     public String getProjectDetails()
-	 {
-		 return projectDetails; 
-	 }
+    {
+        return projectDetails; 
+    }
     public String getStatus() 
-	{
-		 return status; 
-	}
+    {
+        return status; 
+    }
 }
