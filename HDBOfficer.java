@@ -10,7 +10,10 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     {
         super(nric, password, age, maritalStatus, name);
     }
-
+    // fix for double hashing
+    public HDBOfficer(String nric, String password, int age, String maritalStatus, String name, boolean isHashed) {
+        super(nric, password, age, maritalStatus, name, isHashed);
+    }
     public void registerToManage(String Project_id) 
     {
         if (managing_project.equals(Project_id)) {
@@ -211,22 +214,28 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     }
     // Now adding filtering
     @Override
-        public void filterProjects(String location, String flatType) 
+    public void filterProjects(String location, String flatType) 
+    {
+        List<BTOProject> all = DataStore.getAllProjects();
+        for (BTOProject p : all) 
         {
-            List<BTOProject> all = DataStore.getAllProjects();
-            for (BTOProject p : all) 
+            if (p.getLocation().equalsIgnoreCase(location)) 
             {
-                if (p.getLocation().equalsIgnoreCase(location)) 
+                for (Flat f : p.getFlats()) 
                 {
-                      for (BTOProject.FlatType ft : p.getFlatTypes()) 
+                    if (f.getFlatType().equalsIgnoreCase(flatType) && f.checkAvailability(f.getFlatId())) 
                     {
-                            if (ft.getType().equalsIgnoreCase(flatType)) 
-                            {
-                                System.out.println("Match: " + p.getName() + " in " + p.getLocation() + " with " + ft.getType());
-                            }
+                        System.out.println("Match: " + p.getName() + " in " + p.getLocation() + " with " + f.getFlatType());
+                        break; // now works with flat objects
                     }
-                 }
+                }
             }
         }
+    }
+    //file handling fixes
+    public String getPassword()
+    {
+        return this.password;
+    }
 }
 	

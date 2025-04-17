@@ -1,12 +1,29 @@
-public class Flat implements FlatInterface {
+public class Flat implements FlatInterface 
+{
     private String flatId;
     private boolean availability;
 
-    public Flat(String flatId) {
+    public Flat(String flatId) 
+    {
         this.flatId = flatId;
         this.availability = true;
     }
+    private String flatType;
 
+   public Flat(String flatId, String flatType) 
+    {
+        this.flatId = flatId;
+        this.flatType = flatType;
+        this.availability = true;
+    }
+    public String getFlatType() 
+    {
+    return flatType;
+    }
+    public String getFlatId() 
+    {
+        return flatId;
+    }
     @Override
     public boolean checkAvailability(String flatId) {
         return this.flatId.equals(flatId) && availability;

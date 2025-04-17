@@ -6,12 +6,17 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
     protected boolean visibility;
     private String applicationStatus;
 
-    public Applicant(String nric, String password, int age, String maritalStatus, String name) {
+    public Applicant(String nric, String password, int age, String maritalStatus, String name) 
+    {
         super(nric, password, age, maritalStatus, name);
         visibility = false;
         applicationStatus = "No";
     }
-
+    // this is for the rehashing issue
+    public Applicant(String nric, String hashedPw, int age, String maritalStatus, String name, boolean isHashed) 
+    {
+        super(nric, hashedPw, age, maritalStatus, name, isHashed);
+    }
     public void applyForProject(String flatType, String projectDetails) 
 	{
         if (!applicationStatus.equals("No") && !applicationStatus.equals("Unsuccessful")) 
@@ -29,9 +34,12 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
 
     public void viewApplicationStatus() {
         Application app = DataStore.getApplicationByNric(this.nric);
-        if (app != null) {
+        if (app != null) 
+        {
             System.out.println(app.getStatus());
-        } else {
+        } 
+        else 
+        {
             System.out.println(this.applicationStatus);
         }
     }
@@ -51,7 +59,8 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
         return false;
     }
 
-    public String getApplicationStatus(String applicantId) {
+    public String getApplicationStatus(String applicantId) 
+    {
         return applicationStatus;
     }
 
@@ -123,6 +132,7 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
 		}
 	}
 
+
     @Override
     public String hashPassword(String password) 
 	{
@@ -140,25 +150,37 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
      {
         return role.equalsIgnoreCase("Applicant");
      }
+
+    
     // this is for filtering 
-     @Override
-        public void filterProjects(String location, String flatType) 
+    @Override
+    public void filterProjects(String location, String flatType) 
+    {
+        List<BTOProject> all = DataStore.getAllProjects();
+        for (BTOProject p : all) 
         {
-            List<BTOProject> all = DataStore.getAllProjects();
-            for (BTOProject p : all) 
+            if (p.getLocation().equalsIgnoreCase(location)) 
             {
-                if (p.getLocation().equalsIgnoreCase(location)) 
+                for (Flat f : p.getFlats()) 
                 {
-                      for (BTOProject.FlatType ft : p.getFlatTypes()) 
+                    if (f.getFlatType().equalsIgnoreCase(flatType) && f.checkAvailability(f.getFlatId())) 
                     {
-                            if (ft.getType().equalsIgnoreCase(flatType)) 
-                            {
-                                System.out.println("Match: " + p.getName() + " in " + p.getLocation() + " with " + ft.getType());
-                            }
+                        System.out.println("Match: " + p.getName() + " in " + p.getLocation() + " with " + f.getFlatType());
+                        break; // now works with flat objects
                     }
-                 }
+                }
             }
         }
+    }
+    // filehandling getters
+    public String getPassword()
+    {
+        return this.password;
+    }
+    public int getAge()
+    {
+        return age;
+    }
 }
  
 	

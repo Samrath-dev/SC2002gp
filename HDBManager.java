@@ -9,13 +9,16 @@ public class HDBManager extends User implements PermissionInterface
         super(nric, password, age, maritalStatus, name);
         this.projectManaged = null;
     }
-
-    public void createProject(String name, String location, String[] flatTypes, int availableFlats) {
+    // fix for double hashing
+    public HDBManager(String nric, String password, int age, String maritalStatus, String name, boolean isHashed) {
+        super(nric, password, age, maritalStatus, name, isHashed);
+    }
+    public void createProject(String name, String location, Map<String, Integer> flatTypeMap) {
         BTOProject p = new BTOProject();
-        p.createProject(name, location, flatTypes, availableFlats);
+        p.createProject(name, location, flatTypeMap); // assumes you update BTOProject too
         p.setManagerInCharge(this.nric);
         this.projectManaged = p.getProjectId();
-        DataStore.registerProject(p); // now dynamic
+        DataStore.registerProject(p);
         System.out.println("Project created successfully. ID: " + this.projectManaged);
     }
 
@@ -128,21 +131,27 @@ public class HDBManager extends User implements PermissionInterface
     }
     // Filtering for HDBManager too
     @Override
-        public void filterProjects(String location, String flatType) 
+    public void filterProjects(String location, String flatType) 
+    {
+        List<BTOProject> all = DataStore.getAllProjects();
+        for (BTOProject p : all) 
         {
-            List<BTOProject> all = DataStore.getAllProjects();
-            for (BTOProject p : all) 
+            if (p.getLocation().equalsIgnoreCase(location)) 
             {
-                if (p.getLocation().equalsIgnoreCase(location)) 
+                for (Flat f : p.getFlats()) 
                 {
-                      for (BTOProject.FlatType ft : p.getFlatTypes()) 
+                    if (f.getFlatType().equalsIgnoreCase(flatType) && f.checkAvailability(f.getFlatId())) 
                     {
-                            if (ft.getType().equalsIgnoreCase(flatType)) 
-                            {
-                                System.out.println("Match: " + p.getName() + " in " + p.getLocation() + " with " + ft.getType());
-                            }
+                        System.out.println("Match: " + p.getName() + " in " + p.getLocation() + " with " + f.getFlatType());
+                        break; // now works with flat objects
                     }
-                 }
+                }
             }
         }
+    }
+    //
+    public String getPassword() 
+    {
+        return this.password;
+    }
 }

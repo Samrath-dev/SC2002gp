@@ -97,26 +97,34 @@ public class ReportGenerator implements ReportGenerationInterface {
         return report.toString();
     }
 
-    private String generateProjectReport() {
+    private String generateProjectReport() // fixed this also to now work with flat objects.
+    {
         StringBuilder report = new StringBuilder();
         report.append("=== PROJECT STATUS REPORT ===\n");
         report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
-
+    
         for (BTOProject project : DataStore.getAllProjects()) {
             report.append("Project ID: ").append(project.getProjectId()).append("\n")
                   .append("Name: ").append(project.getName()).append("\n")
                   .append("Location: ").append(project.getLocation()).append("\n")
                   .append("Status: ").append(project.isVisible() ? "Visible" : "Hidden").append("\n")
-                  .append("Flat Types:\n");
-
-            for (BTOProject.FlatType flat : project.getFlatTypes()) {
-                report.append("- ").append(flat.getType())
-                      .append(": ").append(flat.getQuantity()).append(" available\n");
+                  .append("Available Flats:\n");
+    
+            Map<String, Integer> typeCounts = new HashMap<>();
+    
+            for (Flat f : project.getFlats()) {
+                if (f.checkAvailability(f.getFlatId())) {
+                    typeCounts.put(f.getFlatType(), typeCounts.getOrDefault(f.getFlatType(), 0) + 1);
+                }
             }
-
+    
+            for (String type : typeCounts.keySet()) {
+                report.append("- ").append(type).append(": ").append(typeCounts.get(type)).append(" available\n");
+            }
+    
             report.append("\n");
         }
-
+    
         return report.toString();
     }
 }

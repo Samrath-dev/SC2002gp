@@ -6,11 +6,8 @@
 
 public class EncryptionUtil 
 {
-
     private static final int SEED = 42;
-
     private static final int SHIFT = 7; 
-
     public static String hashPassword(String password) 
     {
         StringBuilder hashed = new StringBuilder();

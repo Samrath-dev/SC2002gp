@@ -1,4 +1,5 @@
 import java.util.List;  //for method return types
+import java.util.Map;
 import java.util.ArrayList;
 
 //BTOProject class//
@@ -7,46 +8,50 @@ public class BTOProject implements BTOProjectInterface {
     private String name;
     private String location;
     private boolean isVisible;
-    private List<FlatType> flatTypes;
+    private List<Flat> flats = new ArrayList<>(); // made new flat storage
     private static int projectCounter = 0;
     private List<String> assignedOfficers;
     private static final int MAX_OFFICERS = 10;
     private String managerInCharge;
 
-     //represents a flat type with available quantity
-    public static class FlatType {
-        private String type;
-        private int quantity;
-
-        public FlatType(String type, int quantity) {
-            this.type = type;
-            this.quantity = quantity;
-        }
-
-        public String getType() { return type; }
-        public int getQuantity() { return quantity; }
-        public void setQuantity(int quantity) { this.quantity = quantity; }
-    }
-
-    public BTOProject() {
+    public BTOProject() 
+    {
         this.projectId = "PROJ_" + (++projectCounter);
-        this.flatTypes = new ArrayList<>();
         this.assignedOfficers = new ArrayList<>();
         this.isVisible = true;  // added to ensure default visibility
     }
 
  // Interface method implementations
     @Override
-    public void createProject(String name, String location, String[] flatTypes, int availableFlats) {
+    public void createProject(String name, String location, String[] flatTypes, int availableFlats) 
+    {
         this.name = name;
         this.location = location;
         this.isVisible = true;
         
         for (String type : flatTypes) {
-            this.flatTypes.add(new FlatType(type, availableFlats));
+            for (int i = 1; i <= availableFlats; i++) 
+            {
+                String flatId = this.projectId + "_" + type + "_" + i;
+                flats.add(new Flat(flatId, type)); // 
+            }
         }
     }
+    @Override
+    public void createProject(String name, String location, Map<String, Integer> flatTypeMap) {
+    this.name = name;
+    this.location = location;
+    this.isVisible = true;
 
+    for (Map.Entry<String, Integer> entry : flatTypeMap.entrySet()) {
+        String type = entry.getKey();
+        int quantity = entry.getValue();
+        for (int i = 1; i <= quantity; i++) {
+            String flatId = this.projectId + "_" + type + "_" + i;
+            flats.add(new Flat(flatId, type));
+        }
+    }
+}
     @Override
     public void editProject(String projectId, String newName, String newLocation) {
         if (this.projectId.equals(projectId)) {
@@ -73,10 +78,11 @@ public class BTOProject implements BTOProjectInterface {
      //books a flat of specified type,
      //parameter type->Flat type (2-Room/3-Room),
      //return true if booking is successful
-    public boolean bookFlat(String flatType) {
-        for (FlatType type : flatTypes) {
-            if (type.getType().equals(flatType) && type.getQuantity() > 0) {
-                type.setQuantity(type.getQuantity() - 1);
+    public boolean bookFlat(String flatType) 
+    {
+        for (Flat f : flats) {
+            if (f.getFlatType().equalsIgnoreCase(flatType) && f.checkAvailability(f.getFlatId())) {
+                f.bookFlat("NA", f.getFlatId()); 
                 return true;
             }
         }
@@ -85,7 +91,8 @@ public class BTOProject implements BTOProjectInterface {
 
      //adds an officer to the project, and also checks the nric(whether its valid or not)
      //return true if adding the officer is successful
-    public boolean addOfficer(String officerId) {
+    public boolean addOfficer(String officerId) 
+    {
         if (isValidNric(officerId) && assignedOfficers.size() < MAX_OFFICERS 
             && !assignedOfficers.contains(officerId)) {
             assignedOfficers.add(officerId);
@@ -94,7 +101,8 @@ public class BTOProject implements BTOProjectInterface {
         return false;
     }
 
-    private boolean isValidNric(String nric) {
+    private boolean isValidNric(String nric) 
+    {
         return nric != null && nric.matches("^[ST]\\d{7}[A-Z]$"); //nric format
     }
 
@@ -104,7 +112,8 @@ public class BTOProject implements BTOProjectInterface {
     public String getName() { return name; }
     public String getLocation() { return location; }
     public boolean isVisible() { return isVisible; }
-    public List<FlatType> getFlatTypes() { return flatTypes; }
+    
+    public List<Flat> getFlats() { return flats; } // new getter for real flat
     public List<String> getAssignedOfficers() { return assignedOfficers; }
     public int getAvailableOfficerSlots() { return MAX_OFFICERS - assignedOfficers.size(); }
     public String getManagerInCharge() { return managerInCharge; }

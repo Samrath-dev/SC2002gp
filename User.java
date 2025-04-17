@@ -16,7 +16,15 @@ public abstract class User implements userInterface, AuthenticationInterface , F
         this.age = age;
         this.maritalStatus = maritalStatus;
     }
-
+    // this new constructor stops csv loaded people from rehashing
+    protected User(String nric, String hashedPassword, int age, String maritalStatus, String name, boolean isHashed) 
+    {
+        this.nric = nric;
+        this.age = age;
+        this.maritalStatus = maritalStatus;
+        this.name = name;
+        this.password = isHashed ? hashedPassword : hashPassword(hashedPassword);
+    }
     
     public boolean login(String nric, String password) 
     {
@@ -45,12 +53,25 @@ public abstract class User implements userInterface, AuthenticationInterface , F
             System.out.println("Incorrect old password.");
         }
     }
-    
+    //getter?
+    public String getNric()
+     {
+        return nric;
+     }
+     public String getMaritalStatus()
+     {
+        return maritalStatus;
+     }
     
     public void logout() 
     {
         System.out.println("User logged out.");
     }
+    public int getAge()
+    {
+        return age;
+    }
+    
     
     // I have now implemented permissions and filtering in all 
     public abstract void filterProjects(String location, String flatType);
