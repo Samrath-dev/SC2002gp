@@ -1,6 +1,7 @@
 import java.util.Scanner;
 
-public class HDBOfficerHandler {
+public class HDBOfficerHandler 
+{
     private HDBOfficer officer;
     private Scanner sc = new Scanner(System.in);
 
@@ -14,7 +15,7 @@ public class HDBOfficerHandler {
             showMenu();
             choice = getChoice();
             handleChoice(choice);
-        } while (choice != 9);
+        } while (choice != 11);
     }
 
     private void showMenu() {
@@ -24,10 +25,12 @@ public class HDBOfficerHandler {
         System.out.println("3. View Project Enquiries");
         System.out.println("4. Reply to Enquiry");
         System.out.println("5. Generate Receipt");
-        System.out.println("6. Change Password");
+        System.out.println("6. Apply for a project");
         System.out.println("7. Update Flat Availability");
-        System.out.println("8.Change password");
-        System.out.println("9. Logout");
+        System.out.println("8.View Successful Applications");
+        System.out.println("9. Book Flat for Applicant");
+        System.out.println("10.Change password");
+        System.out.println("11. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -50,18 +53,18 @@ public class HDBOfficerHandler {
                 officer.filterProjects(loc, type);
             }
             case 3 -> officer.viewEnquiries(officer.getNric());
-            case 4 -> {
+            case 4 -> 
+            {
                 System.out.print("Enter enquiry ID to reply: ");
                 int id = Integer.parseInt(sc.nextLine());
                 officer.replyEnquiry(id);
             }
             case 5 -> officer.generateReceipt();
-            case 6 -> {
-                System.out.print("Old password: ");
-                String oldPw = sc.nextLine();
-                System.out.print("New password: ");
-                String newPw = sc.nextLine();
-                officer.changePassword(oldPw, newPw);
+            case 6 ->
+             {
+                System.out.print("Enter project ID to apply to: ");
+                String projectId = sc.nextLine();
+                officer.applyToProject(projectId);
             }
             case 7 -> {
                 System.out.print("Enter flat type: ");
@@ -72,13 +75,23 @@ public class HDBOfficerHandler {
             }
             case 8->
             {
+                officer.viewSuccessfulApplications();
+            }
+            case 9->
+            {
+                System.out.print("Enter applicant NRIC to book flat: ");
+                String id = sc.nextLine();
+                officer.bookFlatForApplicant(id);
+            }
+            case 10->
+            {
                 System.out.print("Old password: ");
                 String oldPw = sc.nextLine();
                 System.out.print("New password: ");
                 String newPw = sc.nextLine();
                 officer.changePassword(oldPw, newPw);  
             }
-            case 9 -> officer.logout();
+            case 11 -> officer.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

@@ -101,7 +101,7 @@ public class FileHandler {
         writeCsv(filename, data);
     }
 
-    private static List<List<String>> readCsv(String filename) throws IOException 
+    private  static List<List<String>> readCsv(String filename) throws IOException 
     {
         List<List<String>> data = new ArrayList<>();
         try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
@@ -113,7 +113,7 @@ public class FileHandler {
         return data;
     }
 
-    private static void writeCsv(String filename, List<List<String>> data) throws IOException 
+    private  static void writeCsv(String filename, List<List<String>> data) throws IOException 
     {
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
             for (List<String> row : data) {
@@ -132,6 +132,38 @@ public class FileHandler {
             }
         }
     }
+    // officer applications
+    public static void loadOfficerApplications(String filename) throws IOException 
+    {
+        FileHandler fh = new FileHandler(filename, "csv");
+        List<List<String>> data = fh.read();
+        DataStore.loadOfficerApplications(data);
+    }
+    public static void saveOfficerApplications(String filename) throws IOException 
+    {
+        FileHandler fh = new FileHandler(filename, "csv");
+        List<List<String>> data = DataStore.getOfficerApplicationDataForWrite();
+        fh.write(data);
+    }
 
+    // instance level wraps 
+    public List<List<String>> read() throws IOException 
+    {
+        return readCsv(filename);  // calls static method
+    }
+    
+    public void write(List<List<String>> data) throws IOException 
+    {
+        writeCsv(filename, data);  // calls static method
+    }
+    // workaround constructors
+    private String filename;
+    private String format;
+
+    public FileHandler(String filename, String format) 
+    {
+    this.filename = filename;
+    this.format = format.toLowerCase();
+    }
 }
 

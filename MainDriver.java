@@ -13,6 +13,7 @@ public class MainDriver {
             FileHandler.loadApplications("applications.csv");
             FileHandler.loadEnquiries("enquiries.csv");
             FileHandler.loadFlats("flats.csv");
+            FileHandler.loadOfficerApplications("officer_applications.csv");
         } catch (Exception e) {
             System.out.println("Error loading data: " + e.getMessage());
         }
@@ -67,6 +68,7 @@ public class MainDriver {
                         FileHandler.saveApplications("applications.csv");
                         FileHandler.saveEnquiries("enquiries.csv");
                         FileHandler.saveFlats("flats.csv");
+                        FileHandler.saveOfficerApplications("officer_applications.csv");
                     } catch (Exception e) {
                         System.out.println("Error saving before exit: " + e.getMessage());
                     }

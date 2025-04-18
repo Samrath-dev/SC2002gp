@@ -21,7 +21,7 @@ public class HDBManagerHandler {
             choice = getChoice();
             handleChoice(choice);
         } 
-        while (choice != 10);
+        while (choice != 11);
     }
 
     private void showMenu() {
@@ -34,8 +34,9 @@ public class HDBManagerHandler {
         System.out.println("6. Reply to Enquiry");
         System.out.println("7. Generate Report");
         System.out.println("8.View Projects");
-        System.out.println("9.Change password");
-        System.out.println("10. Logout");
+        System.out.println("9. Officer applications");
+        System.out.println("10.Change password");
+        System.out.println("11. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -154,7 +155,29 @@ public class HDBManagerHandler {
                     }
                 }
             }
-            case 9->
+            case 9 -> 
+            {
+                List<OfficerApplication> apps = DataStore.getAllOfficerApplications();
+                for (OfficerApplication app : apps)
+                {
+                    if (app.getStatus().equalsIgnoreCase("Pending")) 
+                    {
+
+                        System.out.println("Officer NRIC: " + app.getOfficerNric() + ", Project ID: " + app.getProjectId());
+                        System.out.print("Approve this application? (yes/no): ");
+                        String input = sc.nextLine();
+                        if (input.equalsIgnoreCase("yes")) 
+                        {
+                            manager.approveOfficerApplication(app.getOfficerNric(), app.getProjectId());
+                        } 
+                        else 
+                        {
+                            manager.rejectOfficerApplication(app.getOfficerNric(), app.getProjectId());
+                        }
+                    }
+                }
+            }
+            case 10->
             {
                 System.out.print("Old password: ");
                 String oldPw = sc.nextLine();
@@ -162,7 +185,7 @@ public class HDBManagerHandler {
                 String newPw = sc.nextLine();
                 manager.changePassword(oldPw, newPw);  
             }
-            case 10 -> manager.logout();
+            case 11 -> manager.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

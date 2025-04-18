@@ -65,21 +65,31 @@ public class HDBManager extends User implements PermissionInterface
         }
     }
 
-    public void approveApplication(String applicantId, String flatType) {
-        Application app = DataStore.getApplicationByNric(applicantId); // now dynamic
+    // now folling the flow 
+    public void approveApplication(String applicantId, String flatType) 
+    {
+        Application app = DataStore.getApplicationByNric(applicantId);
         if (app != null && app.getStatus().equalsIgnoreCase("Pending")) {
             BTOProject p = getProjectById(app.getProjectDetails());
-            if (p != null && p.bookFlat(flatType)) {
-                app.updateStatus("Booked");
-                app.updateFlatType(flatType);
-                System.out.println("Application approved and flat booked.");
-            } else {
-                System.out.println("No available units to approve.");
+            if (p != null) {
+                // Check if at least one flat of that type is available (without booking) to handle missing cases
+                boolean available = p.getFlats().stream()
+                    .anyMatch(f -> f.getFlatType().equalsIgnoreCase(flatType) && f.checkAvailability(f.getFlatId()));
+                if (available) {
+                    app.updateStatus("Successful");
+                    app.updateFlatType(flatType);
+                    System.out.println("Application approved. Status: Successful.");
+                } else {
+                    System.out.println("No available flats of type " + flatType);
+                }
             }
+        } else {
+            System.out.println("No pending application found for that applicant.");
         }
     }
 
-    public void rejectApplication(String applicantId) {
+    public void rejectApplication(String applicantId) 
+    {
         Application app = DataStore.getApplicationByNric(applicantId); // now dynamic
         if (app != null) {
             app.updateStatus("Unsuccessful");
@@ -87,7 +97,8 @@ public class HDBManager extends User implements PermissionInterface
         }
     }
 
-    public void approveWithdrawal(String applicantId, String projectId) {
+    public void approveWithdrawal(String applicantId, String projectId) 
+    {
         Application app = DataStore.getApplicationByNric(applicantId); // now dynamic
         if (app != null && app.getProjectDetails().equals(projectId)) {
             app.withdraw();
@@ -177,4 +188,63 @@ public class HDBManager extends User implements PermissionInterface
     {
         return projectManaged;
     }
+    // officer approval or reject and view pending
+    public void approveOfficerApplication(String officerNric, String projectId) 
+    {
+    for (OfficerApplication app : DataStore.getAllOfficerApplications()) {
+        if (app.getOfficerNric().equals(officerNric) && app.getProjectId().equals(projectId)) {
+            if (!app.getStatus().equalsIgnoreCase("Pending")) {
+                System.out.println("Application already processed.");
+                return;
+            }
+
+            app.setStatus("Approved");
+            BTOProject project = DataStore.getProjectById(projectId);
+            if (project != null) {
+                project.addOfficer(officerNric);
+
+                // Also update the officer's record
+                User user = DataStore.getUserByNric(officerNric);
+                if (user instanceof HDBOfficer officer) {
+                    officer.setManagingProject(projectId);
+                    System.out.println("Officer approved and assigned to project: " + projectId);
+                } else {
+                    System.out.println("Error: Officer user not found.");
+                }
+            } else {
+                System.out.println("Project not found.");
+            }
+            return;
+        }
+    }
+    System.out.println("Application not found.");
+    }
+
+    public void rejectOfficerApplication(String officerNric, String projectId) 
+    {
+        for (OfficerApplication app : DataStore.getAllOfficerApplications()) {
+            if (app.getOfficerNric().equals(officerNric) && app.getProjectId().equals(projectId)) {
+                if (!app.getStatus().equals("Pending")) {
+                    System.out.println("Application already processed.");
+                    return;
+                }
+                app.setStatus("Rejected");
+                System.out.println("Officer application rejected.");
+                return;
+            }
+        }
+        System.out.println("Application not found.");
+    }
+
+    public void viewPendingOfficerApplications() 
+    {
+        System.out.println("--- Pending Officer Applications ---");
+        for (OfficerApplication app : DataStore.getAllOfficerApplications()) {
+            if (app.getStatus().equalsIgnoreCase("Pending")) {
+                System.out.println("Officer NRIC: " + app.getOfficerNric() + " | Project ID: " + app.getProjectId());
+            }
+        }
+    }
+
+
 }

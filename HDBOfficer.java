@@ -2,8 +2,7 @@ import java.util.*;
 
 public class HDBOfficer extends User implements ApplicationInterface, EnquiryInterface, PermissionInterface, FlatInterface, ReceiptInterface {
 
-    private String managing_project = "Project_id";
-    private String[] applied_projects = {"Project_1", "Project_2"};
+    private String managing_project = null;
 
     // User pre hashes so no need to rehash.In the user constructor...
     public HDBOfficer(String nric, String password, int age, String maritalStatus, String name) 
@@ -14,21 +13,8 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     public HDBOfficer(String nric, String password, int age, String maritalStatus, String name, boolean isHashed) {
         super(nric, password, age, maritalStatus, name, isHashed);
     }
-    public void registerToManage(String Project_id) 
-    {
-        if (managing_project.equals(Project_id)) {
-            System.out.println("Registration failed: Already an officer for another project in the same period.");
-        } 
-        else if (Arrays.asList(applied_projects).contains(Project_id)) 
-        {
-            System.out.println("Registration failed: Applicant cannot register as an HDB Officer for a project they applied for.");
-        } 
-        else 
-        {
-            System.out.println("Registration successful: Waiting for HDB Manager approval.");
-            // submitApplication("Project_id", "Managing"); // Assuming this is for dummy flow
-        }
-    }
+     
+    
 
     public void approveApplications(int ApplicationID) 
     {
@@ -69,27 +55,73 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
         }
         System.out.println("Enquiry ID not found for project: " + this.managing_project);
     }
-
-    public void generateReceipt() {
-        List<Application> applicants = DataStore.getAllApplications();
-        List<Application> filtered = new ArrayList<>();
-
-        for (Application app : applicants) {
-            if (app.getProjectDetails().equalsIgnoreCase(this.managing_project) && app.getStatus().equalsIgnoreCase("Booked")) {
-                filtered.add(app);
+    //proper generating reciepts..
+    public void generateReceipt() 
+    {
+        List<Application> all = DataStore.getAllApplications();
+    
+        for (Application app : all) {
+            if (app.getStatus().equalsIgnoreCase("Booked") &&
+                app.getProjectDetails().equalsIgnoreCase(this.managing_project)) {
+    
+                System.out.println("--- RECEIPT ---");
+                System.out.println("Applicant: " + app.getName());
+                System.out.println("NRIC: " + app.getNric());
+                System.out.println("Project: " + app.getProjectDetails());
+                System.out.println("Flat Type: " + app.getFlatType());
+                System.out.println("Status: " + app.getStatus());
+                System.out.println();
             }
         }
-
-        ReceiptGenerator.generateReceipts(filtered);
     }
     
+    
     @Override
-    public void viewProjects() {
-        // Minimal dummy implementation
-        System.out.println("HDB Officer viewing projects.");
+    public void viewProjects() 
+    {
+        System.out.println("=== Your Assigned Project ===");
+        if (managing_project != null && !managing_project.equalsIgnoreCase("Project_id")) 
+        {
+            BTOProject assigned = DataStore.getProjectById(managing_project);
+            if (assigned != null) 
+            {
+                System.out.println("Project ID: " + assigned.getProjectId());
+                System.out.println("Name: " + assigned.getName());
+                System.out.println("Location: " + assigned.getLocation());
+                System.out.println("Visible: " + assigned.isVisible());
+                System.out.println("Flats:");
+                for (Flat f : assigned.getFlats())
+                {
+                    System.out.println("  - " + f.getFlatId() + " (" + f.getFlatType() + ") : " +
+                            (f.checkAvailability(f.getFlatId()) ? "Available" : "Booked"));
+                }
+                System.out.println();
+            } 
+            else 
+            {
+                System.out.println("You are not managing a valid project currently.");
+            }
+        } 
+        else 
+        {
+            System.out.println("You are not currently managing any project.");
+        }
+    
+        System.out.println("=== All Available Projects ===");
+        List<BTOProject> all = DataStore.getAllProjects();
+        for (BTOProject p : all) {
+            System.out.println("Project ID: " + p.getProjectId());
+            System.out.println("Name: " + p.getName());
+            System.out.println("Location: " + p.getLocation());
+            System.out.println("Visible: " + p.isVisible());
+            System.out.println("Flats:");
+            for (Flat f : p.getFlats()) {
+                System.out.println("  - " + f.getFlatId() + " (" + f.getFlatType() + ") : " +
+                        (f.checkAvailability(f.getFlatId()) ? "Available" : "Booked"));
+            }
+            System.out.println();
+        }
     }
-
-
     /*
      * interface fixes
      */
@@ -145,12 +177,74 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
         Application app = Application.getByNric(applicantId);
         return app != null ? app.getStatus() : "Not found";
     }
+    public String getManagingProject()
+    {
+        return this.managing_project;
+    }
+    
+    public void setManagingProject(String projectId) {
+        this.managing_project = projectId;
+    }
 
     @Override
     public boolean submitApplication(String applicantId, String projectId) 
     {
         System.out.println("Officer submitting application for " + applicantId + " to project " + projectId);
         return true;
+    }
+    // now viewing successful
+    public void viewSuccessfulApplications() 
+    {
+        List<Application> all = DataStore.getAllApplications();
+        boolean found = false;
+    
+        for (Application app : all) {
+            if (app.getProjectDetails().equalsIgnoreCase(this.managing_project) &&
+                app.getStatus().equalsIgnoreCase("Successful")) {
+    
+                System.out.println("Applicant: " + app.getNric() + ", Name: " + app.getName()
+                    + ", Flat Type: " + app.getFlatType() + ", Status: " + app.getStatus());
+                found = true;
+            }
+        }
+    
+        if (!found) System.out.println("No successful applications found.");
+    }
+    public void bookFlatForApplicant(String applicantId) 
+    {
+        Application app = DataStore.getApplicationByNric(applicantId);
+    
+        if (app == null || !app.getStatus().equalsIgnoreCase("Successful")) 
+        {
+            System.out.println("No successful application found for this applicant.");
+            return;
+        }
+    
+        if (!app.getProjectDetails().equalsIgnoreCase(this.managing_project)) 
+        {
+            System.out.println("This application does not belong to your project.");
+            return;
+        }
+    
+        BTOProject project = DataStore.getProjectById(this.managing_project);
+        if (project == null) {
+            System.out.println("Project not found.");
+            return;
+        }
+    
+        String flatType = app.getFlatType();
+    
+        for (Flat flat : project.getFlats()) {
+            if (flat.getFlatType().equalsIgnoreCase(flatType) && flat.checkAvailability(flat.getFlatId())) 
+            {
+                flat.bookFlat(applicantId, flat.getFlatId());
+                app.updateStatus("Booked");
+                System.out.println("Flat " + flat.getFlatId() + " booked successfully for " + applicantId);
+                return;
+            }
+        }
+    
+        System.out.println("No available flats of type " + flatType + " in this project.");
     }
 
     @Override
@@ -203,7 +297,8 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     }
     
     @Override
-    public boolean withdrawApplication(String applicantId, String projectId) {
+    public boolean withdrawApplication(String applicantId, String projectId) 
+    {
         Application app = Application.getByNric(applicantId);
         if (app != null && app.getProjectDetails().equalsIgnoreCase(projectId)) {
             app.withdraw();
@@ -237,5 +332,44 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     {
         return this.password;
     }
+    // officer applying
+    public void applyToProject(String projectId) 
+    {    
+        if (this.managing_project != null && this.managing_project.equalsIgnoreCase(projectId)) {
+            System.out.println("You are already managing this project.");
+            return;
+        }
+        if (this.managing_project != null && !this.managing_project.equalsIgnoreCase("null") && !this.managing_project.isEmpty()) {
+            System.out.println("Registration failed: You are already managing another project.");
+            return;
+        }
+        // Check for duplicate
+        for (OfficerApplication app : DataStore.getAllOfficerApplications()) {
+            if (app.getOfficerNric().equals(this.nric) && app.getProjectId().equals(projectId)) 
+            {
+                System.out.println("You have already applied for this project.");
+                return;
+            }
+        }
+        OfficerApplication newApp = new OfficerApplication(this.nric, projectId);
+        DataStore.submitOfficerApplication(newApp);
+        System.out.println("Application to project submitted. Awaiting manager approval.");
+    }
+    public void viewMyApplications() {
+        List<OfficerApplication> allApps = DataStore.getAllOfficerApplications();
+        boolean found = false;
+    
+        for (OfficerApplication app : allApps) {
+            if (app.getOfficerNric().equalsIgnoreCase(this.nric)) {
+                System.out.println("Project ID: " + app.getProjectId() + ", Status: " + app.getStatus());
+                found = true;
+            }
+        }
+    
+        if (!found) {
+            System.out.println("You have not applied to any projects yet.");
+        }
+    }
+    
 }
 	

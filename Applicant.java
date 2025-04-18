@@ -58,6 +58,32 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
     {
         return false;
     }
+    //fixed placeholder logic for view projects for applicants 
+    @Override
+    public void viewProjects() 
+    {
+        List<BTOProject> allProjects = DataStore.getAllProjects();
+    
+        for (BTOProject p : allProjects) {
+            if (!p.isVisible() || p.isExpired()) continue;
+    
+            boolean shown = false;
+            for (Flat f : p.getFlats()) {
+                if (f.checkAvailability(f.getFlatId()) && isEligibleFor(f.getFlatType())) 
+                {
+                    if (!shown) {
+                        System.out.println("Project ID: " + p.getProjectId());
+                        System.out.println("Name: " + p.getName());
+                        System.out.println("Location: " + p.getLocation());
+                        System.out.println("Eligible Flats:");
+                        shown = true;
+                    }
+                    System.out.println("  - " + f.getFlatId() + " (" + f.getFlatType() + ")");
+                }
+            }
+            if (shown) System.out.println(); // spacer after each project
+        }
+    }
 
     public boolean withdrawApplication(String applicantId, String projectId) 
     {
@@ -90,49 +116,25 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
     {
         super.changePassword(oldPassword, newPassword);
     }
-    //fixed placeholder logic for view projects for applicants 
-    @Override
-    public void viewProjects() 
-    {
-    System.out.println("\n--- Available Projects Based on Your Eligibility ---");
-    boolean found = false;
-
-                    for (BTOProject project : DataStore.getAllProjects()) 
-                    {
-                        if (!project.isVisible()) continue;
-
-                    for (Flat flat : project.getFlats()) 
-                    {
-                            if (flat.checkAvailability(flat.getFlatId()) && isEligibleFor(flat.getFlatType())) 
-                            {
-                                System.out.println("Project ID: " + project.getProjectId());
-                                System.out.println("Name: " + project.getName());
-                                System.out.println("Location: " + project.getLocation());
-                                System.out.println("Flat: " + flat.getFlatId() + " (" + flat.getFlatType() + ") - Available");
-                                System.out.println("------------------------------");
-                                found = true;
-                                break; // Found a valid flat for this project, no need to print more from it
-                            }
-                    }
-                    }
-
-            if (!found) {
-                    System.out.println("No eligible projects currently available.");
-                        }
-    }
-    // fixed placeholder logic for createenquiry
+    
+  
+   
+    // fixed placeholder logic for createenquiry now with unlimited ones
     public void createEnquiry(String applicantId, String message) 
     {
-        Application app = DataStore.getApplicationByNric(this.nric);
-        if (app == null) 
-        {
-            System.out.println("You have no active application.");
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter project ID to enquire about: ");
+        String projectId = sc.nextLine();
+    
+        BTOProject project = DataStore.getProjectById(projectId);
+    
+        if (project == null || project.isExpired() || !project.isVisible()) {
+            System.out.println("Invalid or expired project.");
             return;
         }
-
-        String projectId = app.getProjectDetails();
+    
         new Enquiry(applicantId, projectId, message);
-        System.out.println("Enquiry submitted for project: " + projectId);
+        System.out.println("Enquiry submitted to project " + projectId);
     }
 
         public void viewEnquiries(String applicantId) 
@@ -142,68 +144,52 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
 
         public void editEnquiry(String enquiryId, String updatedMessage) 
         {
-            try 
-            {
-            // fixed generic project placeholder
-            Application app = DataStore.getApplicationByNric(this.nric);
-                if (app == null) 
-                {
-                System.out.println("You have no active application.");
-                return;
+            try {
+                int id = Integer.parseInt(enquiryId);
+                Enquiry e = DataStore.getEnquiryById(id);
+        
+                if (e == null || !e.getApplicantName().equals(this.nric)) {
+                    System.out.println("Enquiry not found or you don't own it.");
+                    return;
                 }
-                String projectId = app.getProjectDetails();
-                
-                int id = Integer.parseInt(enquiryId.trim());
-                Enquiry e = Enquiry.getEnquiriesByProject(projectId).stream()
-                    .filter(enq -> enq.getEnquiryId() == id)
-                    .findFirst().orElse(null);
-                if (e != null && e.getApplicantName().equals(this.nric)) 
-                {
-                    e.setEnquiryText(updatedMessage);
-                    System.out.println("Enquiry updated successfully.");
-                } 
-                else
-                {
-                    System.out.println("Enquiry ID not found.");
+        
+                if (e.getReply() != null && !e.getReply().isBlank()) {
+                    System.out.println("This enquiry has already been replied to and cannot be edited.");
+                    return;
                 }
-            } 
-            catch (Exception ex) 
-            {
+        
+                e.setEnquiryText(updatedMessage);
+                System.out.println("Enquiry updated successfully.");
+        
+            } catch (Exception ex) {
                 System.out.println("Invalid enquiry ID.");
             }
         }
+               
 	
-	public void deleteEnquiry(String enquiryId) 
-	{
-		
-        try 
-        {
-            // fixed generic project placeholder
-            Application app = DataStore.getApplicationByNric(this.nric);
-            if (app == null) 
-            {
-                System.out.println("You have no active application.");
-                return;
+        public void deleteEnquiry(String enquiryId)
+         {
+            try {
+                int id = Integer.parseInt(enquiryId.trim());
+                Enquiry e = DataStore.getEnquiryById(id);
+        
+                if (e == null || !e.getApplicantName().equals(this.nric)) {
+                    System.out.println("Enquiry not found or you don't own it.");
+                    return;
+                }
+        
+                if (e.getReply() != null && !e.getReply().isBlank()) {
+                    System.out.println("This enquiry has already been replied to and cannot be deleted.");
+                    return;
+                }
+        
+                e.deleteEnquiry();
+                System.out.println("Enquiry deleted successfully.");
+        
+            } catch (Exception ex) {
+                System.out.println("Invalid enquiry ID.");
             }
-            String projectId = app.getProjectDetails();
-
-			int id = Integer.parseInt(enquiryId.trim());
-			Enquiry e = Enquiry.getEnquiriesByProject(projectId).stream()
-				.filter(enq -> enq.getEnquiryId() == id)
-				.findFirst().orElse(null);
-			if (e != null && e.getApplicantName().equals(this.nric)) 
-			{
-				e.deleteEnquiry();
-			} 
-			else 
-			{
-				System.out.println("Enquiry ID not found.");
-			}
-		} catch (Exception ex) 
-		{
-			System.out.println("Invalid enquiry ID.");
-		}
-	}
+        }
 
 
     @Override

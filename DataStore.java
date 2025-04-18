@@ -154,7 +154,8 @@ public class DataStore {
         return data;
     }
     
-    public static void loadApplicantsFromData(List<List<String>> data) {
+    public static void loadApplicantsFromData(List<List<String>> data) 
+    {
         for (List<String> row : data) {
             if (row.size() >= 5) {
                 String name = row.get(0);
@@ -179,6 +180,7 @@ public class DataStore {
                 row.add(String.valueOf(o.getAge()));
                 row.add(o.getMaritalStatus());
                 row.add(o.getPassword());  // already hashed
+                row.add(o.getManagingProject() != null ? o.getManagingProject() : ""); //now adding this 
                 data.add(row);
             }
         }
@@ -193,7 +195,17 @@ public class DataStore {
                 int age = Integer.parseInt(row.get(2));
                 String maritalStatus = row.get(3);
                 String hashedPw = row.get(4);
+    
                 HDBOfficer o = new HDBOfficer(nric, hashedPw, age, maritalStatus, name, true);
+    
+                // project id added.
+                if (row.size() >= 6) {
+                    String projectId = row.get(5);
+                    if (!projectId.isEmpty()) {
+                        o.setManagingProject(projectId);
+                    }
+                }
+    
                 registerUser(o);
             }
         }
@@ -218,7 +230,8 @@ public class DataStore {
     return data;
      }
 
-    public static void loadManagersFromData(List<List<String>> data) {
+    public static void loadManagersFromData(List<List<String>> data) 
+    {
         for (List<String> row : data) {
             if (row.size() >= 5) {
                 String name = row.get(0);
@@ -342,7 +355,9 @@ public class DataStore {
         return data;
     }
 
-    public static void loadEnquiriesFromData(List<List<String>> data) {
+    public static void loadEnquiriesFromData(List<List<String>> data) 
+    {
+
         for (List<String> row : data) {
             if (row.size() >= 5) {
                 try {
@@ -354,7 +369,7 @@ public class DataStore {
                     counterField.setAccessible(true);
                     counterField.setInt(null, Math.max(counterField.getInt(null), id + 1));
 
-                    enquiries.add(e);
+                  
                 } catch (Exception ex) {
                     System.out.println("Error loading enquiry: " + ex.getMessage());
                 }
@@ -429,6 +444,39 @@ public static void loadApplicationsFromData(List<List<String>> data) {
         return false;
     }
     
+   // officer applications part and loading
 
+   private static List<OfficerApplication> officerApplications = new ArrayList<>();
+   public static List<OfficerApplication> getAllOfficerApplications() 
+    {
+    return officerApplications;
+    }  
+    public static void submitOfficerApplication(OfficerApplication app) 
+    {
+        officerApplications.add(app);
+    }     
 
+    public static void loadOfficerApplications(List<List<String>> data) 
+    {
+        for (List<String> row : data) {
+            if (row.size() >= 3) {
+                OfficerApplication app = new OfficerApplication(row.get(0), row.get(1));
+                app.setStatus(row.get(2));
+                officerApplications.add(app);
+            }
+        }
+    }
+    public static List<List<String>> getOfficerApplicationDataForWrite() 
+    {
+        List<List<String>> data = new ArrayList<>();
+        for (OfficerApplication app : officerApplications) 
+        {
+            List<String> row = new ArrayList<>();
+            row.add(app.getOfficerNric());
+            row.add(app.getProjectId());
+            row.add(app.getStatus());
+            data.add(row);
+        }
+        return data;
+    }
 }
