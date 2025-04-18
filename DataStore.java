@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.*;
 
 public class DataStore {
@@ -23,7 +24,8 @@ public class DataStore {
     //  Projects
     private static List<BTOProject> projects = new ArrayList<>();
     //massive bug 
-    public static void registerProject(BTOProject project) {
+    public static void registerProject(BTOProject project) 
+    {
         // Check if a manager is already in charge of another project
         for (BTOProject p : projects) {
             if (p.getManagerInCharge() != null &&
@@ -45,7 +47,8 @@ public class DataStore {
         System.out.println("Project successfully registered: " + project.getProjectId());
     }
 
-    public static List<BTOProject> getAllProjects() {
+    public static List<BTOProject> getAllProjects() 
+    {
         return projects;
     }
 
@@ -197,21 +200,23 @@ public class DataStore {
     }
 
     //manager filehandler
-    public static List<List<String>> getManagerDataForWrite() {
-        List<List<String>> data = new ArrayList<>();
-        for (User u : users) {
-            if (u instanceof HDBManager m) {
-                List<String> row = new ArrayList<>();
-                row.add(m.getName());
-                row.add(m.getNric());
-                row.add(String.valueOf(m.getAge()));
-                row.add(m.getMaritalStatus());
-                row.add(m.getPassword());
-                data.add(row);
-            }
+    public static List<List<String>> getManagerDataForWrite() 
+   {
+    List<List<String>> data = new ArrayList<>();
+    for (User u : users) {
+        if (u instanceof HDBManager m) {
+            List<String> row = new ArrayList<>();
+            row.add(m.getName());
+            row.add(m.getNric());
+            row.add(String.valueOf(m.getAge()));
+            row.add(m.getMaritalStatus());
+            row.add(m.getPassword());
+            row.add(m.getProjectManaged() != null ? m.getProjectManaged() : ""); // <-- include projectManaged
+            data.add(row);
         }
-        return data;
     }
+    return data;
+     }
 
     public static void loadManagersFromData(List<List<String>> data) {
         for (List<String> row : data) {
@@ -221,7 +226,9 @@ public class DataStore {
                 int age = Integer.parseInt(row.get(2));
                 String maritalStatus = row.get(3);
                 String hashedPw = row.get(4);
-                HDBManager m = new HDBManager(nric, hashedPw, age, maritalStatus, name, true);
+                String projectManaged = row.size() >= 6 ? row.get(5) : null;
+    
+                HDBManager m = new HDBManager(nric, hashedPw, age, maritalStatus, name, true, projectManaged);
                 registerUser(m);
             }
         }
@@ -258,53 +265,56 @@ public class DataStore {
     }
     // project reader
     public static void loadProjectsFromData(List<List<String>> data) {
-        for (List<String> row : data) {
-            if (row.size() >= 7) {
-                BTOProject p = new BTOProject();
-    
-                try {
-                    // Set projectId
-                    var pid = BTOProject.class.getDeclaredField("projectId");
-                    pid.setAccessible(true);
-                    pid.set(p, row.get(0));
-    
-                    // Set name
-                    var name = BTOProject.class.getDeclaredField("name");
-                    name.setAccessible(true);
-                    name.set(p, row.get(1));
-    
-                    // Set location
-                    var loc = BTOProject.class.getDeclaredField("location");
-                    loc.setAccessible(true);
-                    loc.set(p, row.get(2));
-    
-                    // Set visibility
-                    var vis = BTOProject.class.getDeclaredField("isVisible");
-                    vis.setAccessible(true);
-                    vis.set(p, Boolean.parseBoolean(row.get(3)));
-    
-                    // Set manager
-                    var mgr = BTOProject.class.getDeclaredField("managerInCharge");
-                    mgr.setAccessible(true);
-                    mgr.set(p, row.get(4));
-    
-                    // Set startDate
-                    var start = BTOProject.class.getDeclaredField("startDate");
-                    start.setAccessible(true);
-                    start.set(p, row.get(5));
-    
-                    // Set endDate
-                    var end = BTOProject.class.getDeclaredField("endDate");
-                    end.setAccessible(true);
-                    end.set(p, row.get(6));
-                    projects.add(p);
-    
-                } catch (Exception e) {
-                    System.out.println("Error loading project: " + e.getMessage());
-                }
+    for (List<String> row : data) {
+        if (row.size() >= 7) {
+            BTOProject p = new BTOProject();
+
+            try {
+                // Set projectId
+                var pid = BTOProject.class.getDeclaredField("projectId");
+                pid.setAccessible(true);
+                pid.set(p, row.get(0));
+
+                // Set name
+                var name = BTOProject.class.getDeclaredField("name");
+                name.setAccessible(true);
+                name.set(p, row.get(1));
+
+                // Set location
+                var loc = BTOProject.class.getDeclaredField("location");
+                loc.setAccessible(true);
+                loc.set(p, row.get(2));
+
+                // Set visibility
+                var vis = BTOProject.class.getDeclaredField("isVisible");
+                vis.setAccessible(true);
+                vis.set(p, Boolean.parseBoolean(row.get(3)));
+
+                // Set manager
+                var mgr = BTOProject.class.getDeclaredField("managerInCharge");
+                mgr.setAccessible(true);
+                mgr.set(p, row.get(4));
+
+                // this whole part was corrupting the data
+                var start = BTOProject.class.getDeclaredField("startDate");
+                start.setAccessible(true);
+                start.set(p, LocalDate.parse(row.get(5)));
+
+                var end = BTOProject.class.getDeclaredField("endDate");
+                end.setAccessible(true);
+                end.set(p, LocalDate.parse(row.get(6)));
+
+                projects.add(p);
+
+            } catch (Exception e) {
+                System.out.println("Error loading project: " + e.getMessage());
+                e.printStackTrace();
             }
+        } else {
+            System.out.println("Invalid project row: " + row);
         }
     }
+}
     //flat reader
     public static void loadFlatsForProject(BTOProject p, List<List<String>> data) {
         for (List<String> row : data) {

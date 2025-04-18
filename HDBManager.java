@@ -15,6 +15,11 @@ public class HDBManager extends User implements PermissionInterface
     {
         super(nric, password, age, maritalStatus, name, isHashed);
     }
+    public HDBManager(String nric, String password, int age, String maritalStatus, String name, boolean isHashed, String projectManaged) 
+     {
+          super(nric, password, age, maritalStatus, name, isHashed);
+          this.projectManaged = projectManaged;
+     } 
     public void createProject(String name, String location, String startDate, String endDate, Map<String, Integer> flatTypeMap) 
     {
        
@@ -23,7 +28,7 @@ public class HDBManager extends User implements PermissionInterface
             System.out.println("You are already managing a project and cannot create another.");
             return;
         }
-    
+        
         BTOProject project = new BTOProject();
         project.createProject(name, location, startDate, endDate, flatTypeMap);
     

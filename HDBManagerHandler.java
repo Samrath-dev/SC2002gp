@@ -56,6 +56,7 @@ public class HDBManagerHandler {
         switch (choice) {
             
                 case 1 -> {
+                    
                     if (manager.getProjectManaged() != null) 
                     {
                         System.out.println("You are already managing a project and cannot create another.");
