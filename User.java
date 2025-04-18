@@ -40,12 +40,12 @@ public abstract class User implements userInterface, AuthenticationInterface , F
     {
         return name;
     }
-  
-    public void changePassword(String oldPassword, String newPassword)
+    //new password change option
+    public void changePassword(String oldPw, String newPw) 
     {
-        if (EncryptionUtil.verifyPassword(this.password, oldPassword))
+        if (verifyPassword(this.password, oldPw)) 
         {
-            this.password = EncryptionUtil.hashPassword(newPassword);
+            this.password = hashPassword(newPw);
             System.out.println("Password changed successfully.");
         } 
         else 

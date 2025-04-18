@@ -14,7 +14,7 @@ public class HDBOfficerHandler {
             showMenu();
             choice = getChoice();
             handleChoice(choice);
-        } while (choice != 8);
+        } while (choice != 9);
     }
 
     private void showMenu() {
@@ -26,7 +26,8 @@ public class HDBOfficerHandler {
         System.out.println("5. Generate Receipt");
         System.out.println("6. Change Password");
         System.out.println("7. Update Flat Availability");
-        System.out.println("8. Logout");
+        System.out.println("8.Change password");
+        System.out.println("9. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -69,7 +70,15 @@ public class HDBOfficerHandler {
                 int delta = Integer.parseInt(sc.nextLine());
                 officer.updateFlatAvailability(flatType, delta);
             }
-            case 8 -> officer.logout();
+            case 8->
+            {
+                System.out.print("Old password: ");
+                String oldPw = sc.nextLine();
+                System.out.print("New password: ");
+                String newPw = sc.nextLine();
+                officer.changePassword(oldPw, newPw);  
+            }
+            case 9 -> officer.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

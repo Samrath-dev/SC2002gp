@@ -46,8 +46,12 @@ public class DataStore {
     // Applications
     private static List<Application> applications = new ArrayList<>();
 
-    public static void submitApplication(Application app) {
-        applications.add(app);
+    public static void submitApplication(Application newApp) 
+    {
+        // fixed bug of duplicated applications...
+        applications.removeIf(app -> app.getNric().equalsIgnoreCase(newApp.getNric()));
+        
+        applications.add(newApp);
     }
 
     public static Application getApplicationByNric(String nric) {

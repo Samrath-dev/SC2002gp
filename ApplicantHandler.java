@@ -25,7 +25,8 @@ public class ApplicantHandler {
         System.out.println("4. Manage Enquiries");
         System.out.println("5. Filter Projects");
         System.out.println("6. Change Password");
-        System.out.println("7. Logout");
+        System.out.println("7. View Projects ");
+        System.out.println("8. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -60,14 +61,17 @@ public class ApplicantHandler {
                 String type = sc.nextLine();
                 applicant.filterProjects(loc, type);
             }
-            case 6 -> {
+            case 6 -> 
+            {
                 System.out.print("Old password: ");
                 String oldPw = sc.nextLine();
                 System.out.print("New password: ");
                 String newPw = sc.nextLine();
                 applicant.changePassword(oldPw, newPw);
             }
-            case 7 -> applicant.logout();
+            case 7->applicant.viewProjects();
+
+            case 8 -> applicant.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

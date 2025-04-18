@@ -21,7 +21,7 @@ public class HDBManagerHandler {
             choice = getChoice();
             handleChoice(choice);
         } 
-        while (choice != 9);
+        while (choice != 10);
     }
 
     private void showMenu() {
@@ -34,7 +34,8 @@ public class HDBManagerHandler {
         System.out.println("6. Reply to Enquiry");
         System.out.println("7. Generate Report");
         System.out.println("8.View Projects");
-        System.out.println("9. Logout");
+        System.out.println("9.Change password");
+        System.out.println("10. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -138,8 +139,15 @@ public class HDBManagerHandler {
                 }
                  
              }
-            
-            case 9 -> manager.logout();
+            case 9->
+            {
+                System.out.print("Old password: ");
+                String oldPw = sc.nextLine();
+                System.out.print("New password: ");
+                String newPw = sc.nextLine();
+                manager.changePassword(oldPw, newPw);  
+            }
+            case 10 -> manager.logout();
             default -> System.out.println("Invalid choice.");
         }
     }
