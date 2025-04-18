@@ -51,29 +51,43 @@ public class HDBManagerHandler {
         }
     }
 
-    private void handleChoice(int choice) {
+    private void handleChoice(int choice) 
+    {
         switch (choice) {
-           case 1 -> {
-    System.out.print("Project name: ");
-    String name = sc.nextLine();
+            
+                case 1 -> {
+                    if (manager.getProjectManaged() != null) 
+                    {
+                        System.out.println("You are already managing a project and cannot create another.");
+                        return;
+                    }
+                
 
-    System.out.print("Location: ");
-    String loc = sc.nextLine();
-
-    System.out.print("Enter flat types (comma-separated): ");
-    String[] types = sc.nextLine().split(",");
-
-    Map<String, Integer> flatTypeMap = new HashMap<>();
-    for (String type : types) {
-        type = type.trim(); 
-        System.out.print("Enter number of " + type + " flats: ");
-        int qty = Integer.parseInt(sc.nextLine());
-        flatTypeMap.put(type, qty);
-    }
-
-    // 
-    manager.createProject(name, loc, flatTypeMap);
-}
+                    System.out.print("Project name: ");
+                    String name = sc.nextLine();
+                
+                    System.out.print("Location: ");
+                    String loc = sc.nextLine();
+                
+                    System.out.print("Start date (yyyy-MM-dd): ");
+                    String start = sc.nextLine();
+                
+                    System.out.print("End date (yyyy-MM-dd): ");
+                    String end = sc.nextLine();
+                
+                    System.out.print("Enter flat types (comma-separated): ");
+                    String[] types = sc.nextLine().split(",");
+                
+                    Map<String, Integer> flatTypeMap = new HashMap<>();
+                    for (String type : types) {
+                        type = type.trim(); 
+                        System.out.print("Enter number of " + type + " flats: ");
+                        int qty = Integer.parseInt(sc.nextLine());
+                        flatTypeMap.put(type, qty);
+                    }
+                
+                    manager.createProject(name, loc, start, end, flatTypeMap);
+                }
             case 2 -> {
                 System.out.print("Project ID to edit: ");
                 String id = sc.nextLine();
@@ -117,28 +131,28 @@ public class HDBManagerHandler {
             }
             case 8 -> 
             {
-                    List<BTOProject> projects = DataStore.getAllProjects();
-                    if (projects.isEmpty()) {
+                List<BTOProject> projects = DataStore.getAllProjects();
+                if (projects.isEmpty()) {
                     System.out.println("No projects found.");
-                    } 
-                    else 
-                    {
-                     for (BTOProject p : projects)
-                      {
-                        System.out.println("Project ID: " + p.getProjectId());
-                        System.out.println("Name: " + p.getName());
-                        System.out.println("Location: " + p.getLocation());
-                        System.out.println("Visible: " + p.isVisible());
-                     System.out.println("Flats:");
-                for (Flat f : p.getFlats()) 
-                {
-                System.out.println("  - " + f.getFlatId() + " (" + f.getFlatType() + ") : " + (f.checkAvailability(f.getFlatId()) ? "Available" : "Booked"));
-                }
-                System.out.println();
+                } else {
+                    for (BTOProject p : projects) {
+                        System.out.println("===========================================");
+                        System.out.println("Project ID   : " + p.getProjectId());
+                        System.out.println("Name         : " + p.getName());
+                        System.out.println("Location     : " + p.getLocation());
+                        System.out.println("Start Date   : " + p.getStartDate());
+                        System.out.println("End Date     : " + p.getEndDate());
+                        System.out.println("Status       : " + (p.isExpired() ? "Expired" : "Active"));
+                        System.out.println("Visible      : " + p.isVisible());
+                        System.out.println("Flats        :");
+                        for (Flat f : p.getFlats()) {
+                            System.out.println("  - " + f.getFlatId() + " (" + f.getFlatType() + ") : " + 
+                                               (f.checkAvailability(f.getFlatId()) ? "Available" : "Booked"));
                         }
+                        System.out.println("===========================================");
+                    }
                 }
-                 
-             }
+            }
             case 9->
             {
                 System.out.print("Old password: ");

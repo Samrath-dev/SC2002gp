@@ -5,21 +5,35 @@ public class HDBManager extends User implements PermissionInterface
 
     private String projectManaged;
 
-    public HDBManager(String nric, String password, int age, String maritalStatus, String name) {
+    public HDBManager(String nric, String password, int age, String maritalStatus, String name) 
+    {
         super(nric, password, age, maritalStatus, name);
         this.projectManaged = null;
     }
     // fix for double hashing
-    public HDBManager(String nric, String password, int age, String maritalStatus, String name, boolean isHashed) {
+    public HDBManager(String nric, String password, int age, String maritalStatus, String name, boolean isHashed) 
+    {
         super(nric, password, age, maritalStatus, name, isHashed);
     }
-    public void createProject(String name, String location, Map<String, Integer> flatTypeMap) {
-        BTOProject p = new BTOProject();
-        p.createProject(name, location, flatTypeMap); // assumes you update BTOProject too
-        p.setManagerInCharge(this.nric);
-        this.projectManaged = p.getProjectId();
-        DataStore.registerProject(p);
-        System.out.println("Project created successfully. ID: " + this.projectManaged);
+    public void createProject(String name, String location, String startDate, String endDate, Map<String, Integer> flatTypeMap) 
+    {
+       
+        if (this.projectManaged != null) 
+        {
+            System.out.println("You are already managing a project and cannot create another.");
+            return;
+        }
+    
+        BTOProject project = new BTOProject();
+        project.createProject(name, location, startDate, endDate, flatTypeMap);
+    
+        // Set manager and store project ID
+        project.setManagerInCharge(this.nric);
+        this.projectManaged = project.getProjectId();
+    
+        DataStore.registerProject(project);
+    
+        System.out.println("Project created with ID: " + project.getProjectId());
     }
 
     public void editProject(String projectId, String newName, String newLocation) {
@@ -153,5 +167,9 @@ public class HDBManager extends User implements PermissionInterface
     public String getPassword() 
     {
         return this.password;
+    }
+    public String getProjectManaged()
+    {
+        return projectManaged;
     }
 }

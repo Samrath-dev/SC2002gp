@@ -14,7 +14,7 @@ public class ApplicantHandler {
             showMenu();
             choice = getChoice();
             handleChoice(choice);
-        } while (choice != 7);
+        } while (choice != 8);
     }
 
     private void showMenu() {
@@ -33,7 +33,9 @@ public class ApplicantHandler {
     private int getChoice() {
         try {
             return Integer.parseInt(sc.nextLine());
-        } catch (Exception e) {
+        } 
+        catch (Exception e) 
+        {
             return -1;
         }
     }

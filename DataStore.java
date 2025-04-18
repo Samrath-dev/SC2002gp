@@ -22,10 +22,27 @@ public class DataStore {
 
     //  Projects
     private static List<BTOProject> projects = new ArrayList<>();
-
-    public static void registerProject(BTOProject project)
-    {
+    //massive bug 
+    public static void registerProject(BTOProject project) {
+        // Check if a manager is already in charge of another project
+        for (BTOProject p : projects) {
+            if (p.getManagerInCharge() != null &&
+                p.getManagerInCharge().equalsIgnoreCase(project.getManagerInCharge())) {
+                System.out.println("Manager is already assigned to another project.");
+                return;
+            }
+        }
+    
+        // Check for duplicate project ID
+        for (BTOProject p : projects) {
+            if (p.getProjectId().equalsIgnoreCase(project.getProjectId())) {
+                System.out.println("A project with this ID already exists.");
+                return;
+            }
+        }
+    
         projects.add(project);
+        System.out.println("Project successfully registered: " + project.getProjectId());
     }
 
     public static List<BTOProject> getAllProjects() {
@@ -164,7 +181,7 @@ public class DataStore {
         }
         return data;
     }
-
+  
     public static void loadOfficersFromData(List<List<String>> data) {
         for (List<String> row : data) {
             if (row.size() >= 5) {
@@ -211,7 +228,8 @@ public class DataStore {
     }
 
     // project writer 
-    public static List<List<String>> getProjectDataForWrite() {
+    public static List<List<String>> getProjectDataForWrite() 
+    {
         List<List<String>> data = new ArrayList<>();
         for (BTOProject p : projects) {
             List<String> row = new ArrayList<>();
@@ -220,6 +238,8 @@ public class DataStore {
             row.add(p.getLocation());
             row.add(String.valueOf(p.isVisible()));
             row.add(p.getManagerInCharge());
+            row.add(p.getStartDate().toString());  // <-- new
+            row.add(p.getEndDate().toString());    // <-- new
             data.add(row);
         }
         return data;
@@ -239,7 +259,7 @@ public class DataStore {
     // project reader
     public static void loadProjectsFromData(List<List<String>> data) {
         for (List<String> row : data) {
-            if (row.size() >= 5) {
+            if (row.size() >= 7) {
                 BTOProject p = new BTOProject();
     
                 try {
@@ -268,6 +288,15 @@ public class DataStore {
                     mgr.setAccessible(true);
                     mgr.set(p, row.get(4));
     
+                    // Set startDate
+                    var start = BTOProject.class.getDeclaredField("startDate");
+                    start.setAccessible(true);
+                    start.set(p, row.get(5));
+    
+                    // Set endDate
+                    var end = BTOProject.class.getDeclaredField("endDate");
+                    end.setAccessible(true);
+                    end.set(p, row.get(6));
                     projects.add(p);
     
                 } catch (Exception e) {
@@ -372,5 +401,24 @@ public static void loadApplicationsFromData(List<List<String>> data) {
         }
         return data;
     }
+    // manager locking
+   
+    public static boolean managerHasProject(String managerId) 
+    {
+        System.out.println("[DEBUG] Checking if manager has project: " + managerId);
+        for (BTOProject p : projects) {
+            String assignedManager = p.getManagerInCharge();
+            System.out.println("[DEBUG] Project: " + p.getProjectId() + ", Assigned: " + assignedManager);
     
+            if (assignedManager != null && assignedManager.trim().equalsIgnoreCase(managerId.trim())) {
+                System.out.println("[DEBUG] Manager match found!");
+                return true;
+            }
+        }
+        System.out.println("[DEBUG] No project found for manager.");
+        return false;
+    }
+    
+
+
 }
