@@ -6,9 +6,15 @@ public class RegisterDriver {
         Scanner sc = new Scanner(System.in);
         System.out.print("Enter NRIC: ");
         String nric = sc.nextLine();
+       
         if (!nric.matches("^[ST]\\d{7}[A-Z]$")) 
         {
             System.out.println("Invalid NRIC format. Registration failed.");
+            return;
+        }
+        if (DataStore.getUserByNric(nric) != null) 
+        {
+            System.out.println("NRIC already registered. Registration failed.");
             return;
         }
         String password = "password";
