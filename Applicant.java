@@ -159,8 +159,13 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
                     .findFirst().orElse(null);
                 if (e != null && e.getApplicantName().equals(this.nric)) 
                 {
-                    e.setEnquiryText(updatedMessage);
-                    System.out.println("Enquiry updated successfully.");
+                    if (e.getReply() == "No reply yet."){
+                        e.setEnquiryText(updatedMessage);
+                        System.out.println("Enquiry updated successfully.");
+                    }
+                    else{
+                        System.out.println("Unable to edit enquiry with reply.");
+                    }
                 } 
                 else
                 {
@@ -193,7 +198,13 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
 				.findFirst().orElse(null);
 			if (e != null && e.getApplicantName().equals(this.nric)) 
 			{
-				e.deleteEnquiry();
+                if (e.getReply() == "No reply yet."){
+                    e.deleteEnquiry();
+                    System.out.println("Enquiry deleted successfully.");
+                }
+                else{
+                    System.out.println("Unable to delete enquiry with reply.");
+                }
 			} 
 			else 
 			{

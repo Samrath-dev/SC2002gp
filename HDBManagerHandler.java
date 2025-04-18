@@ -172,6 +172,8 @@ public class HDBManagerHandler {
         System.out.println("1. Approve Application");
         System.out.println("2. Reject Application");
         System.out.println("3. Approve Withdrawal");
+        System.out.println("4. View all Applications in your Projects");
+        System.out.print("Enter your choice: ");
         int ch = getChoice();
 
         switch (ch) {
@@ -193,6 +195,9 @@ public class HDBManagerHandler {
                 System.out.print("Project ID: ");
                 String proj = sc.nextLine();
                 manager.approveWithdrawal(id, proj);
+            }
+            case 4 -> {
+                manager.viewAllApplication();
             }
             default -> System.out.println("Invalid application option.");
         }

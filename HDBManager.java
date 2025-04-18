@@ -1,4 +1,5 @@
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class HDBManager extends User implements PermissionInterface
 {
@@ -64,7 +65,31 @@ public class HDBManager extends User implements PermissionInterface
             System.out.println("Project visibility updated.");
         }
     }
+    public void viewAllApplication(){
+        List<Application> managedApps = DataStore.getApplicationsByManagerNric(this.nric);
+        if (managedApps.isEmpty()) {
+            System.out.println("No applications found for your managed projects.");
+            return;
+        }
 
+        // Group by projectDetails (which is the projectId)
+        Map<String, List<Application>> grouped = managedApps.stream()
+            .collect(Collectors.groupingBy(Application::getProjectDetails));
+
+        // Print grouped applications sorted by projectId
+        for (String projectId : grouped.keySet().stream().sorted().toList()) {
+            System.out.println("\nApplications for Project ID: " + projectId);
+            System.out.println("---------------------------------------------------");
+            for (Application app : grouped.get(projectId)) {
+                System.out.println("Applicant: " + app.getName());
+                System.out.println("Age: " + app.getAge());
+                System.out.println("Marital Status: " + app.getMaritalStatus());
+                System.out.println("Flat Type: " + app.getFlatType());
+                System.out.println("Status: " + app.getStatus());
+                System.out.println("---------------------------------------------------");
+            }
+        }
+    }
     public void approveApplication(String applicantId, String flatType) {
         Application app = DataStore.getApplicationByNric(applicantId); // now dynamic
         if (app != null && app.getStatus().equalsIgnoreCase("Pending")) {

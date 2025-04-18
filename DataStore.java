@@ -85,6 +85,26 @@ public class DataStore {
         return applications;
     }
 
+    public static List<Application> getApplicationsByManagerNric(String managerNric) {
+        List<Application> result = new ArrayList<>();
+    
+        // Step 1: Find all project IDs managed by the given NRIC
+        List<String> managerProjectIds = projects.stream()
+            .filter(p -> p.getManagerInCharge() != null && p.getManagerInCharge().equalsIgnoreCase(managerNric))
+            .sorted(Comparator.comparing(BTOProject::getProjectId))
+            .map(BTOProject::getProjectId)
+            .toList();
+    
+        // Step 2: Collect applications for those project IDs
+        for (Application app : applications) {
+            if (managerProjectIds.contains(app.getProjectDetails())) {
+                result.add(app);
+            }
+        }
+    
+        return result;
+    }
+
     // === ENQUIRIES ===
     private static List<Enquiry> enquiries = new ArrayList<>();
 
@@ -343,6 +363,7 @@ public class DataStore {
     }
 
     public static void loadEnquiriesFromData(List<List<String>> data) {
+        enquiries.clear();
         for (List<String> row : data) {
             if (row.size() >= 5) {
                 try {
@@ -354,7 +375,7 @@ public class DataStore {
                     counterField.setAccessible(true);
                     counterField.setInt(null, Math.max(counterField.getInt(null), id + 1));
 
-                    enquiries.add(e);
+                    //enquiries.add(e);
                 } catch (Exception ex) {
                     System.out.println("Error loading enquiry: " + ex.getMessage());
                 }
