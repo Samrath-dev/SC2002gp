@@ -197,7 +197,7 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
     {
         List<Application> all = DataStore.getAllApplications();
         boolean found = false;
-    
+        System.out.println("Officer you are in charge of project: " + this.managing_project);
         for (Application app : all) {
             if (app.getProjectDetails().equalsIgnoreCase(this.managing_project) &&
                 app.getStatus().equalsIgnoreCase("Successful")) {
@@ -355,19 +355,19 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
         DataStore.submitOfficerApplication(newApp);
         System.out.println("Application to project submitted. Awaiting manager approval.");
     }
-    public void viewMyApplications() {
-        List<OfficerApplication> allApps = DataStore.getAllOfficerApplications();
+    public void viewMyProjectApplications() 
+    {
+        List<OfficerApplication> apps = DataStore.getAllOfficerApplications();
         boolean found = false;
-    
-        for (OfficerApplication app : allApps) {
-            if (app.getOfficerNric().equalsIgnoreCase(this.nric)) {
-                System.out.println("Project ID: " + app.getProjectId() + ", Status: " + app.getStatus());
+        for (OfficerApplication app : apps) {
+            if (app.getOfficerNric().equals(this.nric)) 
+            {
+                System.out.println("Project ID: " + app.getProjectId() + " | Status: " + app.getStatus());
                 found = true;
             }
         }
-    
         if (!found) {
-            System.out.println("You have not applied to any projects yet.");
+            System.out.println("You have not applied to any projects.");
         }
     }
     

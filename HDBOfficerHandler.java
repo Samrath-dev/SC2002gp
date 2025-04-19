@@ -15,7 +15,7 @@ public class HDBOfficerHandler
             showMenu();
             choice = getChoice();
             handleChoice(choice);
-        } while (choice != 11);
+        } while (choice != 12);
     }
 
     private void showMenu() {
@@ -26,11 +26,12 @@ public class HDBOfficerHandler
         System.out.println("4. Reply to Enquiry");
         System.out.println("5. Generate Receipt");
         System.out.println("6. Apply for a project");
-        System.out.println("7. Update Flat Availability");
-        System.out.println("8.View Successful Applications");
-        System.out.println("9. Book Flat for Applicant");
-        System.out.println("10.Change password");
-        System.out.println("11. Logout");
+        System.out.println("7. View my Project applications");
+        System.out.println("8. Update Flat Availability");
+        System.out.println("9.View Successful Applications");
+        System.out.println("10. Book Flat for Applicant");
+        System.out.println("11.Change password");
+        System.out.println("12. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -66,24 +67,28 @@ public class HDBOfficerHandler
                 String projectId = sc.nextLine();
                 officer.applyToProject(projectId);
             }
-            case 7 -> {
+            case 7->
+            {
+                officer.viewMyProjectApplications();
+            }
+            case 8 -> {
                 System.out.print("Enter flat type: ");
                 String flatType = sc.nextLine();
                 System.out.print("Enter number of units to add (use negative for removal): ");
                 int delta = Integer.parseInt(sc.nextLine());
                 officer.updateFlatAvailability(flatType, delta);
             }
-            case 8->
+            case 9->
             {
                 officer.viewSuccessfulApplications();
             }
-            case 9->
+            case 10->
             {
                 System.out.print("Enter applicant NRIC to book flat: ");
                 String id = sc.nextLine();
                 officer.bookFlatForApplicant(id);
             }
-            case 10->
+            case 11->
             {
                 System.out.print("Old password: ");
                 String oldPw = sc.nextLine();
@@ -91,7 +96,7 @@ public class HDBOfficerHandler
                 String newPw = sc.nextLine();
                 officer.changePassword(oldPw, newPw);  
             }
-            case 11 -> officer.logout();
+            case 12 -> officer.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

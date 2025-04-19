@@ -62,7 +62,27 @@ public class DataStore {
     public static void addProject(BTOProject project) {
         projects.add(project);
     }
-
+    public static boolean deleteProjectById(String projectId, String managerNric) {
+        BTOProject project = getProjectById(projectId);
+        if (project == null) return false;
+    
+        if (project.getManagerInCharge() == null || 
+            !project.getManagerInCharge().equalsIgnoreCase(managerNric)) {
+            return false; // not authorized
+        }
+    
+      
+        projects.remove(project);
+    
+        // Unassign the manager
+        User u = getUserByNric(managerNric);
+        if (u instanceof HDBManager m) 
+        {
+            m.setProjectManaged(null);
+        }
+    
+        return true;
+    }
     // Applications
     private static List<Application> applications = new ArrayList<>();
 

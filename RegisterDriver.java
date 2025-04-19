@@ -1,9 +1,11 @@
 // This handles new users. Goes back to main screen after registered.
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class RegisterDriver {
     public static void registerUser() {
         Scanner sc = new Scanner(System.in);
+    try {
         System.out.print("Enter NRIC: ");
         String nric = sc.nextLine();
        
@@ -48,6 +50,21 @@ public class RegisterDriver {
             default:
                 System.out.println("Invalid option.");
         }
+
+    } 
+    catch (NumberFormatException e) 
+    {
+        System.out.println("Invalid numeric input. Registration failed.");
+    } 
+    catch (InputMismatchException e) 
+        {
+            System.out.println("Invalid input type. Registration failed.");
+            sc.nextLine(); 
+        }
+    catch (Exception e) 
+    {
+        System.out.println("Unexpected error: " + e.getMessage());
+    }
     }
 }
 

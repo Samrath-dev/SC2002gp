@@ -45,16 +45,19 @@ public class ReportGenerator implements ReportGenerationInterface {
         }
     }
 
-    public void addBooking(Booking booking) {
+    public void addBooking(Booking booking) 
+    {
         // Optional: Add to DataStore if needed
         System.out.println("Bookings are now derived from applications. Manual add not needed.");
     }
 
-    public void addProject(BTOProject project) {
+    public void addProject(BTOProject project) 
+    {
         DataStore.addProject(project);
     }
 
-    private String generateBookingReport(String filter) {
+    private String generateBookingReport(String filter) 
+    {
         StringBuilder report = new StringBuilder();
         report.append("=== BTO BOOKING REPORT ===\n");
         report.append("Generated on: ").append(LocalDate.now()).append("\n\n");
@@ -118,7 +121,8 @@ public class ReportGenerator implements ReportGenerationInterface {
                 }
             }
     
-            for (String type : typeCounts.keySet()) {
+            for (String type : typeCounts.keySet()) 
+            {
                 report.append("- ").append(type).append(": ").append(typeCounts.get(type)).append(" available\n");
             }
     

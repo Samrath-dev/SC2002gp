@@ -21,22 +21,25 @@ public class HDBManagerHandler {
             choice = getChoice();
             handleChoice(choice);
         } 
-        while (choice != 11);
+        while (choice != 13);
     }
 
-    private void showMenu() {
+    private void showMenu() 
+    {
         System.out.println("\n=== HDB Manager Menu ===");
         System.out.println("1. Create Project");
         System.out.println("2. Edit Project");
         System.out.println("3. Delete Project");
         System.out.println("4. Toggle Project Visibility");
-        System.out.println("5. Application Handling");
-        System.out.println("6. Reply to Enquiry");
-        System.out.println("7. Generate Report");
-        System.out.println("8.View Projects");
-        System.out.println("9. Officer applications");
-        System.out.println("10.Change password");
-        System.out.println("11. Logout");
+        System.out.println("5. View all aplications to my projects");
+        System.out.println("6. Application Handling");
+        System.out.println("7. Reply to Enquiry");
+        System.out.println("8. Generate Report");
+        System.out.println("9.View Projects");
+        System.out.println("10. Filter projects");
+        System.out.println("11. Officer applications");
+        System.out.println("12.Change password");
+        System.out.println("13. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -99,10 +102,16 @@ public class HDBManagerHandler {
                 String loc = sc.nextLine();
                 manager.editProject(id, name, loc);
             }
-            case 3 -> {
+            case 3 -> 
+            {
                 System.out.print("Project ID to delete: ");
                 String id = sc.nextLine();
-                manager.deleteProject(id);
+            
+                if (DataStore.deleteProjectById(id, manager.getNric())) {
+                    System.out.println("Project " + id + " deleted successfully. Please logout to create another project");
+                } else {
+                    System.out.println("Project not found or you're not authorized to delete it.");
+                }
             }
             case 4 -> {
                 System.out.print("Project ID to toggle: ");
@@ -111,15 +120,47 @@ public class HDBManagerHandler {
                 boolean vis = Boolean.parseBoolean(sc.nextLine());
                 manager.toggleProjectVisibility(id, vis);
             }
-            case 5 -> applicationMenu();
-            case 6 -> {
-                System.out.print("Enquiry ID: ");
+
+            case 5->
+            {
+                manager.viewAllApplicationsToMyProject();
+            }
+            case 6 -> applicationMenu();
+            case 7 -> 
+            {    
+                List<Enquiry> allEnquiries = DataStore.getEnquiriesByProject(manager.getProjectManaged());
+
+                if (allEnquiries.isEmpty()) {
+                    System.out.println("No enquiries found for your project.");
+                    break;
+                }
+            
+                System.out.println("Enquiries for your project:");
+                for (Enquiry e : allEnquiries) {
+                    System.out.println("ID: " + e.getEnquiryId() + " | From: " + e.getApplicantName() + 
+                        " | Message: " + e.getEnquiryText() + " | Reply: " + (e.getReply().isEmpty() ? "No reply" : e.getReply()));
+                }
+
+                System.out.print("Enquiry ID (enter 0 to exit or -1 to delete): ");
                 int id = Integer.parseInt(sc.nextLine());
+                if (id == 0)
+                {
+                   System.out.println("Returning to menu.");
+                   break;
+                }
+                else if(id==-1)
+                {
+                    System.out.println("Enter enquiry id to delete: ");
+                    int deleteId = Integer.parseInt(sc.nextLine());
+                    DataStore.deleteEnquiry(deleteId);  
+                    System.out.println("Enquiry deleted.");
+                    break;
+                }
                 System.out.print("Reply message: ");
                 String msg = sc.nextLine();
                 manager.replyToEnquiry(id, msg);
             }
-            case 7 -> {
+            case 8 -> {
                 System.out.print("Report type (booking/filtered): ");
                 String type = sc.nextLine();
                 if (type.equalsIgnoreCase("filtered")) 
@@ -131,7 +172,7 @@ public class HDBManagerHandler {
                     manager.generateBookingReport();
                 }
             }
-            case 8 -> 
+            case 9 -> 
             {
                 List<BTOProject> projects = DataStore.getAllProjects();
                 if (projects.isEmpty()) {
@@ -155,17 +196,36 @@ public class HDBManagerHandler {
                     }
                 }
             }
-            case 9 -> 
+            case 10 -> 
             {
+                System.out.print("Enter location to filter: ");
+                String loc = sc.nextLine();
+                System.out.print("Enter flat type to filter (e.g., 2Room, 3Room): ");
+                String type = sc.nextLine();
+                manager.filterProjects(loc, type);
+            }
+            case 11 -> 
+            {
+                String managerProjectId = manager.getProjectManaged();
+            
+                if (managerProjectId == null) {
+                    System.out.println("You are not managing any project.");
+                    break;
+                }
+            
                 List<OfficerApplication> apps = DataStore.getAllOfficerApplications();
+                boolean anyFound = false;
+            
                 for (OfficerApplication app : apps)
                 {
-                    if (app.getStatus().equalsIgnoreCase("Pending")) 
+                    if (app.getStatus().equalsIgnoreCase("Pending") &&
+                        app.getProjectId().equalsIgnoreCase(managerProjectId)) 
                     {
-
+                        anyFound = true;
                         System.out.println("Officer NRIC: " + app.getOfficerNric() + ", Project ID: " + app.getProjectId());
                         System.out.print("Approve this application? (yes/no): ");
                         String input = sc.nextLine();
+            
                         if (input.equalsIgnoreCase("yes")) 
                         {
                             manager.approveOfficerApplication(app.getOfficerNric(), app.getProjectId());
@@ -176,8 +236,12 @@ public class HDBManagerHandler {
                         }
                     }
                 }
+            
+                if (!anyFound) {
+                    System.out.println("No pending officer applications for your project.");
+                }
             }
-            case 10->
+            case 12->
             {
                 System.out.print("Old password: ");
                 String oldPw = sc.nextLine();
@@ -185,7 +249,7 @@ public class HDBManagerHandler {
                 String newPw = sc.nextLine();
                 manager.changePassword(oldPw, newPw);  
             }
-            case 11 -> manager.logout();
+            case 13 -> manager.logout();
             default -> System.out.println("Invalid choice.");
         }
     }
