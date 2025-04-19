@@ -8,6 +8,7 @@ public class MainDriver {
             // Load everything at startup
             FileHandler.loadApplicants("applicants.csv");
             FileHandler.loadOfficers("officers.csv");
+
             FileHandler.loadManagers("managers.csv");
             FileHandler.loadProjects("projects.csv");
             FileHandler.loadApplications("applications.csv");

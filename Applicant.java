@@ -153,7 +153,8 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
                     return;
                 }
         
-                if (e.getReply() != null && !e.getReply().isBlank()) {
+                if (e.getReply() != null && !e.getReply().isBlank() && !e.getReply().equalsIgnoreCase("No reply yet."))
+                {
                     System.out.println("This enquiry has already been replied to and cannot be edited.");
                     return;
                 }

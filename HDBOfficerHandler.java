@@ -15,7 +15,7 @@ public class HDBOfficerHandler
             showMenu();
             choice = getChoice();
             handleChoice(choice);
-        } while (choice != 12);
+        } while (choice != 13);
     }
 
     private void showMenu() {
@@ -28,10 +28,11 @@ public class HDBOfficerHandler
         System.out.println("6. Apply for a project");
         System.out.println("7. View my Project applications");
         System.out.println("8. Update Flat Availability");
-        System.out.println("9.View Successful Applications");
+        System.out.println("9. View Successful Applications");
         System.out.println("10. Book Flat for Applicant");
-        System.out.println("11.Change password");
-        System.out.println("12. Logout");
+        System.out.println("11. Change password");
+        System.out.println("12. Apply for Flat as Applicant");
+        System.out.println("13. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -96,7 +97,15 @@ public class HDBOfficerHandler
                 String newPw = sc.nextLine();
                 officer.changePassword(oldPw, newPw);  
             }
-            case 12 -> officer.logout();
+            case 12 -> 
+            {
+                System.out.print("Enter flat type: ");
+                String flatType = sc.nextLine();
+                System.out.print("Enter project ID: ");
+                String projectId = sc.nextLine();
+                officer.applyAsApplicant(flatType, projectId);
+            }
+            case 13 -> officer.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

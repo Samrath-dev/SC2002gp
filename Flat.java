@@ -30,17 +30,31 @@ public class Flat implements FlatInterface
     }
 
     @Override
-    public boolean bookFlat(String applicantId, String flatId) {
-        if (this.flatId.equals(flatId) && availability == true) {
+    public boolean bookFlat(String applicantId, String flatId, boolean suppressMessage) 
+    {
+        if (this.flatId.equals(flatId) && availability) 
+        {
             availability = false;
-            System.out.println("Book successfully.");
+            if (suppressMessage) 
+            {
+                System.out.println("Book successfully.");
+            }
             return true;
-        } else {
-            System.out.println("It has been booked.");
+        } 
+        else 
+        {
+            if (suppressMessage) {
+                System.out.println("It has been booked.");
+            }
             return false;
         }
     }
-
+    @Override // this is wrapping for backward compatibility
+    public boolean bookFlat(String applicantId, String flatId) 
+    {
+    return bookFlat(applicantId, flatId, false);
+    }
+    
     @Override
     public void updateFlatAvailability(String flatId, int newAvailability) {
         if (this.flatId.equals(flatId)) {

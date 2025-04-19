@@ -192,6 +192,12 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
         System.out.println("Officer submitting application for " + applicantId + " to project " + projectId);
         return true;
     }
+
+    @Override
+    public boolean bookFlat(String applicantId, String flatType, boolean suppressMessage) 
+    {
+    return bookFlat(applicantId, flatType); // fallback to default behavior
+    }
     // now viewing successful
     public void viewSuccessfulApplications() 
     {
@@ -370,6 +376,44 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
             System.out.println("You have not applied to any projects.");
         }
     }
+    // hdbofficer now applying
+    public void applyAsApplicant(String flatType, String projectDetails) 
+    {
+        Application existing = DataStore.getApplicationByNric(this.nric);
+        
+        if (existing != null && 
+            !existing.getStatus().equalsIgnoreCase("Unsuccessful") &&
+            !existing.getStatus().equalsIgnoreCase("Withdrawn")) 
+        {
+            System.out.println("You already have an active application.");
+            return;
+        }
     
+        if (this.managing_project != null && this.managing_project.equalsIgnoreCase(projectDetails)) {
+            System.out.println("You cannot apply to the project you are managing.");
+            return;
+        }
+        String maritalStatus = this.maritalStatus;
+        int age = this.age;
+        boolean eligible = false;
+        if (maritalStatus.equalsIgnoreCase("Single"))
+         {
+            eligible = flatType.equalsIgnoreCase("2Room") && age >= 35;
+        } 
+        else if (maritalStatus.equalsIgnoreCase("Married")) 
+        {
+            eligible = (flatType.equalsIgnoreCase("2Room") || flatType.equalsIgnoreCase("3Room")) && age >= 21;
+        }
+    
+        if (!eligible) 
+        {
+            System.out.println("You are not eligible to apply for this flat type.");
+            return;
+        }
+    
+        Application newApp = new Application(this.name, this.nric, this.age, this.maritalStatus, flatType, projectDetails);
+        DataStore.submitApplication(newApp);
+        System.out.println("Flat application submitted as officer.");
+    }
 }
 	

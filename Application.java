@@ -44,7 +44,6 @@ public class Application
     public void updateStatus(String newStatus) 
 	{
         this.status = newStatus;
-        System.out.println("Status updated to: " + newStatus);
     }
 
     public void withdraw() {

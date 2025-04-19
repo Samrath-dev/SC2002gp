@@ -354,7 +354,7 @@ public class DataStore {
             if (row.size() >= 3) {
                 Flat f = new Flat(row.get(0), row.get(1));
                 if (!Boolean.parseBoolean(row.get(2))) {
-                    f.bookFlat("NA", row.get(0));  // mark as booked
+                    f.bookFlat("NA", row.get(0),true);  // mark as booked (fixed bug of printing booked flats)
                 }
                 p.getFlats().add(f);
             }
