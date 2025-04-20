@@ -117,15 +117,35 @@ public class HDBManager extends User implements PermissionInterface
 
     public void approveWithdrawal(String applicantId, String projectId) 
     {
-        Application app = DataStore.getApplicationByNric(applicantId); // now dynamic
-        if (app != null && app.getProjectDetails().equals(projectId)) {
-            app.withdraw();
-            System.out.println("Withdrawal approved.");
-        } else {
-            System.out.println("Withdrawal failed.");
+        Application app = DataStore.getApplicationByNric(applicantId);
+    
+        if (app == null) 
+        {
+            System.out.println("Application not found.");
+            return;
         }
+    
+        if (!app.getProjectDetails().equalsIgnoreCase(projectId)) 
+        {
+            System.out.println("This application does not belong to the specified project.");
+            return;
+        }
+    
+        if (!projectId.equalsIgnoreCase(this.projectManaged)) 
+        {
+            System.out.println("You are not authorized to process withdrawals for this project.");
+            return;
+        }
+    
+        if (!app.getStatus().equalsIgnoreCase("Withdraw Requested")) 
+        {
+            System.out.println("This application is not marked for withdrawal.");
+            return;
+        }
+    
+        app.updateStatus("Unsuccessful");
+        System.out.println("Withdrawal approved. Application marked as Unsuccessful.");
     }
-
     public void replyToEnquiry(int enquiryId, String responseMessage) {
         List<Enquiry> all = DataStore.getEnquiriesByProject(this.projectManaged); // now dynamic list
         for (Enquiry e : all) {
@@ -235,21 +255,26 @@ public class HDBManager extends User implements PermissionInterface
                 User user = DataStore.getUserByNric(officerNric);
                 if (user instanceof HDBOfficer officer) 
                 {
-                    // bug about double applications fixed.
                     if (officer.getManagingProject() != null && !officer.getManagingProject().isEmpty()) 
                     {
                         System.out.println("This officer is already managing project: " + officer.getManagingProject());
                         System.out.println("Cannot assign officer to another project.");
-
                         app.setStatus("Rejected");
                         System.out.println("This application has been marked as Rejected.");
-
                         return;
                     }
     
                     BTOProject project = DataStore.getProjectById(projectId);
                     if (project != null) 
                     {
+                        if (project.getAssignedOfficers().size() >= 10) 
+                        {
+                            System.out.println("Project already has 10 officers assigned. Cannot approve more.");
+                            app.setStatus("Rejected");
+                            System.out.println("This application has been marked as Rejected.");
+                            return;
+                        }
+    
                         project.addOfficer(officerNric);
                         officer.setManagingProject(projectId);
                         app.setStatus("Approved");

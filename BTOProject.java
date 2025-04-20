@@ -105,12 +105,24 @@ public class BTOProject implements BTOProjectInterface {
     //return true if adding the officer is successful
     public boolean addOfficer(String officerId) 
     {
-        if (isValidNric(officerId) && assignedOfficers.size() < MAX_OFFICERS 
-            && !assignedOfficers.contains(officerId)) {
-            assignedOfficers.add(officerId);
-            return true;
+        if (!isValidNric(officerId)) {
+            System.out.println("Invalid NRIC format.");
+            return false;
         }
-        return false;
+    
+        if (assignedOfficers.contains(officerId)) 
+        {
+            System.out.println("Officer is already assigned to this project.");
+            return false;
+        }
+    
+        if (assignedOfficers.size() >= MAX_OFFICERS) {
+            System.out.println("Cannot add officer. Project already has 10 officers.");
+            return false;
+        }
+        
+        assignedOfficers.add(officerId);
+        return true;
     }
 
     private boolean isValidNric(String nric) 

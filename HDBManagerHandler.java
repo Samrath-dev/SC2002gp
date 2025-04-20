@@ -38,7 +38,9 @@ public class HDBManagerHandler {
         System.out.println("9.View Projects");
         System.out.println("10. Filter projects");
         System.out.println("11. Officer applications");
-        System.out.println("12.Change password");
+        System.out.println();
+        System.out.println("====User Features====");
+        System.out.println("12. Change password");
         System.out.println("13. Logout");
         System.out.print("Enter your choice: ");
     }

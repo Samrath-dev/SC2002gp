@@ -50,10 +50,12 @@ public class ApplicantHandler {
                 applicant.applyForProject(flatType, project);
             }
             case 2 -> applicant.viewApplicationStatus();
-            case 3 -> {
+            case 3 -> 
+            {
                 System.out.print("Enter project ID to withdraw from: ");
                 String projectId = sc.nextLine();
                 applicant.withdrawApplication(applicant.getNric(), projectId);
+                System.out.println("Requested withdrawal");
             }
             case 4 -> enquiryMenu();
             case 5 -> {

@@ -15,7 +15,7 @@ public class HDBOfficerHandler
             showMenu();
             choice = getChoice();
             handleChoice(choice);
-        } while (choice != 13);
+        } while (choice != 15);
     }
 
     private void showMenu() {
@@ -25,14 +25,18 @@ public class HDBOfficerHandler
         System.out.println("3. View Project Enquiries");
         System.out.println("4. Reply to Enquiry");
         System.out.println("5. Generate Receipt");
-        System.out.println("6. Apply for a project");
+        System.out.println("6. Apply for a project as Officer");
         System.out.println("7. View my Project applications");
         System.out.println("8. Update Flat Availability");
-        System.out.println("9. View Successful Applications");
+        System.out.println("9. View Successful Applications for My Project");
         System.out.println("10. Book Flat for Applicant");
+        System.out.println();
+        System.out.println(" ===Applicant and User Features=== ");
         System.out.println("11. Change password");
         System.out.println("12. Apply for Flat as Applicant");
-        System.out.println("13. Logout");
+        System.out.println("13. View my Flat Application status");
+        System.out.println("14 Request Withdrawal from my Flat Application");
+        System.out.println("15. Logout");
         System.out.print("Enter your choice: ");
     }
 
@@ -105,7 +109,18 @@ public class HDBOfficerHandler
                 String projectId = sc.nextLine();
                 officer.applyAsApplicant(flatType, projectId);
             }
-            case 13 -> officer.logout();
+            case 13->
+            {
+                officer.viewMyFlatApplications();
+            }
+
+            case 14 -> 
+            {
+                System.out.print("Enter project ID to withdraw from: ");
+                String proj = sc.nextLine();
+                officer.withdrawApplication(officer.getNric(), proj);
+            }
+            case 15 -> officer.logout();
             default -> System.out.println("Invalid choice.");
         }
     }

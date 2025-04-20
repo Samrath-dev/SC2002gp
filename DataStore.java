@@ -280,6 +280,7 @@ public class DataStore {
             row.add(p.getManagerInCharge());
             row.add(p.getStartDate().toString());  // <-- new
             row.add(p.getEndDate().toString());    // <-- new
+            row.add(String.join(",", p.getAssignedOfficers())); //buggy
             data.add(row);
         }
         return data;
@@ -336,6 +337,18 @@ public class DataStore {
                 var end = BTOProject.class.getDeclaredField("endDate");
                 end.setAccessible(true);
                 end.set(p, LocalDate.parse(row.get(6)));
+                
+                // bug squashed 
+                if (row.size() >= 8) {
+                    String officerList = row.get(7).trim();
+                    if (!officerList.isEmpty()) {
+                        var officers = BTOProject.class.getDeclaredField("assignedOfficers");
+                        officers.setAccessible(true);
+                        @SuppressWarnings("unchecked")
+                        List<String> assigned = (List<String>) officers.get(p);
+                        assigned.addAll(Arrays.asList(officerList.split(",")));
+                    }
+                }
 
                 projects.add(p);
 

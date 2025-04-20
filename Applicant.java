@@ -85,15 +85,24 @@ public class Applicant extends User implements ApplicationInterface, EnquiryInte
         }
     }
 
+    @Override
     public boolean withdrawApplication(String applicantId, String projectId) 
     {
         Application app = DataStore.getApplicationByNric(this.nric);
         if (app != null) 
         {
-            app.withdraw();
-            this.applicationStatus = "Withdrawn";
+            if (app.getStatus().equalsIgnoreCase("Booked")) 
+            {
+                System.out.println("You cannot withdraw an already booked application.");
+                return false;
+            }
+    
+            app.updateStatus("Withdraw Requested");
+            this.applicationStatus = "Withdraw Requested";
+            System.out.println("Withdrawal request submitted.");
             return true;
         }
+        System.out.println("No application found to withdraw.");
         return false;
     }
 

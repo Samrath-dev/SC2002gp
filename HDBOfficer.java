@@ -302,17 +302,6 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
         return true; 
     }
     
-    @Override
-    public boolean withdrawApplication(String applicantId, String projectId) 
-    {
-        Application app = Application.getByNric(applicantId);
-        if (app != null && app.getProjectDetails().equalsIgnoreCase(projectId)) {
-            app.withdraw();
-            return true;
-        }
-        System.out.println("Application not found or doesn't match project.");
-        return false;
-    }
     // Now adding filtering
     @Override
     public void filterProjects(String location, String flatType) 
@@ -414,6 +403,40 @@ public class HDBOfficer extends User implements ApplicationInterface, EnquiryInt
         Application newApp = new Application(this.name, this.nric, this.age, this.maritalStatus, flatType, projectDetails);
         DataStore.submitApplication(newApp);
         System.out.println("Flat application submitted as officer.");
+    }
+
+    @Override
+    public boolean withdrawApplication(String applicantId, String projectId) {
+        Application app = DataStore.getApplicationByNric(this.nric); // Officer’s own application
+        if (app != null && app.getProjectDetails().equalsIgnoreCase(projectId)) {
+            if (app.getStatus().equalsIgnoreCase("Booked")) {
+                System.out.println("You cannot withdraw a booked application.");
+                return false;
+            }
+            app.updateStatus("Withdraw Requested");
+            System.out.println("Withdrawal request submitted.");
+            return true;
+        }
+        System.out.println("Application not found or doesn't match project.");
+        return false;
+    }
+    public void viewMyFlatApplications() 
+    {
+        List<Application> all = DataStore.getAllApplications();
+        boolean found = false;
+    
+        for (Application app : all) {
+            if (app.getNric().equalsIgnoreCase(this.nric)) {
+                System.out.println("Project: " + app.getProjectDetails() +
+                                   ", Flat Type: " + app.getFlatType() +
+                                   ", Status: " + app.getStatus());
+                found = true;
+            }
+        }
+    
+        if (!found) {
+            System.out.println("You have not applied for any flats.");
+        }
     }
 }
 	
