@@ -1,14 +1,22 @@
 import java.util.Scanner;
-
+/**
+ * Handles the interaction between the HDB officer and the system through a menu-driven interface.
+ */
 public class HDBOfficerHandler 
 {
     private HDBOfficer officer;
     private Scanner sc = new Scanner(System.in);
-
+    /**
+     * Constructs a handler for the given HDB officer.
+     * 
+     * @param officer The HDB officer associated with this handler.
+     */
     public HDBOfficerHandler(HDBOfficer officer) {
         this.officer = officer;
     }
-
+    /**
+     * Starts the menu loop for officer operations until logout is selected.
+     */
     public void start() {
         int choice;
         do {
@@ -17,7 +25,9 @@ public class HDBOfficerHandler
             handleChoice(choice);
         } while (choice != 15);
     }
-
+    /**
+     * Displays the available menu options to the officer.
+     */
     private void showMenu() {
         System.out.println("\n=== HDB Officer Menu ===");
         System.out.println("1. View Projects");
@@ -39,7 +49,11 @@ public class HDBOfficerHandler
         System.out.println("15. Logout");
         System.out.print("Enter your choice: ");
     }
-
+    /**
+     * Retrieves the officer's menu choice input.
+     * 
+     * @return The menu option selected by the officer, or -1 if input is invalid.
+     */
     private int getChoice() {
         try {
             return Integer.parseInt(sc.nextLine());
@@ -47,7 +61,11 @@ public class HDBOfficerHandler
             return -1;
         }
     }
-
+    /**
+     * Executes the appropriate action based on the officer's selected menu choice.
+     * 
+     * @param choice The menu option selected by the officer.
+     */
     private void handleChoice(int choice) {
         switch (choice) {
             case 1 -> officer.viewProjects();

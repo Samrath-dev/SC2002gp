@@ -1,9 +1,14 @@
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
+/**
+ * Implements the functionality for generating BTO booking receipts.
+ */
 public class ReceiptGenerator implements ReceiptInterface {
-
+    /**
+     * Generates booking receipts for all applicants in the system.
+     * Uses the DataStore to retrieve all applications.
+     */
     public static void generateReceipts() {
         List<Application> applicants = DataStore.getAllApplications(); // upgraded to use DataStore
 
@@ -26,6 +31,13 @@ public class ReceiptGenerator implements ReceiptInterface {
             System.out.println("Project Details: " + applicant.getProjectDetails());
         }
     }
+    /**
+     * Generates a receipt for a specific applicant based on their NRIC, project ID, and flat type.
+     * 
+     * @param applicantId The NRIC of the applicant.
+     * @param projectId The ID of the project the applicant applied for.
+     * @param flatType The type of flat applied for.
+     */
     @Override
     public void generateReceipt(String applicantId, String projectId, String flatType) 
     {
@@ -51,7 +63,11 @@ public class ReceiptGenerator implements ReceiptInterface {
             System.out.println("No matching application found for receipt generation.");
         }
     }
-
+    /**
+     * Generates receipts for a given list of applicants.
+     * 
+     * @param applicants A list of Application objects to generate receipts for.
+     */
     public static void generateReceipts(List<Application> applicants) {
         LocalDateTime now = LocalDateTime.now();
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
