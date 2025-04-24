@@ -1,3 +1,4 @@
+import java.time.LocalDate;
 import java.util.*;
 
 public class HDBManager extends User implements PermissionInterface
@@ -20,25 +21,32 @@ public class HDBManager extends User implements PermissionInterface
           super(nric, password, age, maritalStatus, name, isHashed);
           this.projectManaged = projectManaged;
      } 
-    public void createProject(String name, String location, String startDate, String endDate, Map<String, Integer> flatTypeMap) 
-    {
-       
+     public void createProject(String name, String location, String startDate, String endDate, Map<String, Integer> flatTypeMap) 
+     {
         if (this.projectManaged != null) 
         {
             System.out.println("You are already managing a project and cannot create another.");
             return;
         }
-        
-        BTOProject project = new BTOProject();
-        project.createProject(name, location, startDate, endDate, flatTypeMap);
     
-        // Set manager and store project ID
-        project.setManagerInCharge(this.nric);
-        this.projectManaged = project.getProjectId();
+        if (!isValidProjectDates(startDate, endDate)) 
+        {
+            System.out.println("Invalid date format or start date is after end date.");
+            return;
+        }
     
-        DataStore.registerProject(project);
+        try {
+            BTOProject project = new BTOProject();
+            project.createProject(name, location, startDate, endDate, flatTypeMap);
     
-        System.out.println("Project created with ID: " + project.getProjectId());
+            project.setManagerInCharge(this.nric);
+            this.projectManaged = project.getProjectId();
+    
+            DataStore.registerProject(project);
+            System.out.println("Project created with ID: " + project.getProjectId());
+        } catch (Exception e) {
+            System.out.println("Project creation failed due to invalid inputs.");
+        }
     }
 
     public void editProject(String projectId, String newName, String newLocation) {
@@ -323,6 +331,17 @@ public class HDBManager extends User implements PermissionInterface
             }
         }
     }
-
+    // date handling
+    public static boolean isValidProjectDates(String startDate, String endDate) 
+    {
+        try {
+        LocalDate start = LocalDate.parse(startDate);
+        LocalDate end = LocalDate.parse(endDate);
+        return !end.isBefore(start);  // end should be same or after start
+    } catch (Exception e) 
+    {   
+        return false;
+    }
+}
 
 }

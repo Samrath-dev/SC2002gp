@@ -1,4 +1,5 @@
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 import java.util.List;  //for method return types
 import java.util.Map;
 import java.util.ArrayList;
@@ -44,23 +45,37 @@ public class BTOProject implements BTOProjectInterface {
     }
 
     
-    @Override
-    public void createProject(String name, String location, String startDate, String endDate, Map<String, Integer> flatTypeMap) {
-    this.name = name;
-    this.location = location;
-    this.startDate = LocalDate.parse(startDate);
-    this.endDate = LocalDate.parse(endDate);
-    this.isVisible = true;
+            @Override
+            public void createProject(String name, String location, String startDate, String endDate, Map<String, Integer> flatTypeMap) 
+        {
+                LocalDate parsedStart, parsedEnd;
 
-    for (Map.Entry<String, Integer> entry : flatTypeMap.entrySet()) {
-        String type = entry.getKey();
-        int quantity = entry.getValue();
-        for (int i = 1; i <= quantity; i++) {
-            String flatId = this.projectId + "_" + type + "_" + i;
-            flats.add(new Flat(flatId, type));
+            try {
+                    parsedStart = LocalDate.parse(startDate);
+                    parsedEnd = LocalDate.parse(endDate);
+                } 
+                catch (DateTimeParseException e) 
+                {
+                    System.out.println("Invalid date format or value. Please use YYYY-MM-DD.");
+                    return;
+                }
+
+                this.name = name;
+                this.location = location;
+                this.startDate = parsedStart;
+                this.endDate = parsedEnd;
+                this.isVisible = true;
+
+                for (Map.Entry<String, Integer> entry : flatTypeMap.entrySet()) {
+                String type = entry.getKey();
+                int quantity = entry.getValue();
+                for (int i = 1; i <= quantity; i++)
+                 {
+                    String flatId = this.projectId + "_" + type + "_" + i;
+                    flats.add(new Flat(flatId, type));
+                 }
+            }
         }
-    }
-}
 
     @Override
     public void editProject(String projectId, String newName, String newLocation) {

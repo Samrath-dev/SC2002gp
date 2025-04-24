@@ -1,7 +1,9 @@
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+
 
 public class HDBManagerHandler {
     private HDBManager manager;
@@ -81,6 +83,28 @@ public class HDBManagerHandler {
                 
                     System.out.print("End date (yyyy-MM-dd): ");
                     String end = sc.nextLine();
+
+                    try {
+                        LocalDate startDate = LocalDate.parse(start);
+                        LocalDate endDate = LocalDate.parse(end);
+                        LocalDate today = LocalDate.now();
+                
+                        if (startDate.isBefore(today)) {
+                            System.out.println("Start date must not be before today's date.");
+                            return;
+                        }
+                
+                        if (endDate.isBefore(startDate)) {
+                            System.out.println("End date must be after or equal to start date.");
+                            return;
+                        }
+                
+                    } catch (Exception e) 
+                    {
+                        System.out.println("Invalid date format. Please use yyyy-MM-dd.");
+                        return;
+                    }
+
                 
                     System.out.print("Enter flat types (comma-separated): ");
                     String[] types = sc.nextLine().split(",");
